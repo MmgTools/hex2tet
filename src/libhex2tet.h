@@ -63,7 +63,7 @@ extern "C" {
  * >   END SUBROUTINE\n
  *
  */
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,int nbhexa );
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
 
 
 /**

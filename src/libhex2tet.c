@@ -15,11 +15,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,int nbhexa) {
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
   Hedge             hed2;
   int               norient;
-  int              *adjahex,k,ier;
-
+  MMG5_int          *adjahex,k,ier;
+  
   if ( mmgMesh->info.imprim ) {
     fprintf(stdout,"\n  -- HEX2TET, Release %s (%s) \n",H2T_VER,H2T_REL);
     fprintf(stdout,"     %s\n",H2T_CPY);
@@ -33,7 +33,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,int nbhexa) {
 
   /* hexa adjacency */
   adjahex = NULL;
-  adjahex = (int*)calloc(6*nbhexa+7,sizeof(int));
+  adjahex = (MMG5_int*)calloc(6*nbhexa+7,sizeof(long long));
   assert(adjahex);
 
   if(!H2T_hashHexa(hexa,adjahex,nbhexa)) return H2T_STRONGFAILURE;
@@ -41,12 +41,14 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,int nbhexa) {
   /* cut hexa into tet */
   hed2.size  = 6*nbhexa;
   hed2.hnxt  = 6*nbhexa;
-  hed2.nhmax = (int)(16*6*nbhexa);
+  //hed2.nhmax = (MMG5_int)(16*6*nbhexa);
+  hed2.nhmax = (MMG5_int)(2*6*nbhexa);
   hed2.item  = NULL;
   hed2.item  = (hedge*)calloc(hed2.nhmax+1,sizeof(hedge));
 
-  for (k=6*nbhexa; k<hed2.nhmax; k++)
+  for (k=6*nbhexa; k<hed2.nhmax; k++) {
     hed2.item[k].nxt = k+1;
+  }
 
   if ( 6*nbhexa >= mmgMesh->nemax ) {
     printf("\n  -- ERROR: Not enough memory to store the final mesh"

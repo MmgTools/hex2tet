@@ -49,9 +49,9 @@
  * Create table of adjacency.
  *
  */
-int H2T_hashHexa(int* listhexa,int* adjahex,int nhex) {
-  int              k,kk,pp,l,ll,mins,mins1,opps,opps1,sum,sum1,iadr;
-  int              *hcode,*link,hsize,imins,imins1;
+int H2T_hashHexa(int* listhexa,MMG5_int* adjahex,int nhex) {
+  MMG5_int         k,kk,pp,l,ll,mins,mins1,opps,opps1,sum,sum1,iadr,*link;
+  int              *hcode,hsize,imins,imins1;
   int              ph[8],ph1[8];
   long int         inival;
   unsigned char    i,ii,iii,i1,i2,i3,i4;
@@ -62,7 +62,7 @@ int H2T_hashHexa(int* listhexa,int* adjahex,int nhex) {
   fflush(stdout);
 
   /* memory alloc */
-  hcode = (int*)calloc(nhex+1,sizeof(int));
+  hcode = (int*)calloc(nhex+1,sizeof(long long));
   assert ( hcode );
   link  = adjahex;
   hsize = nhex;
@@ -170,7 +170,7 @@ int H2T_hashHexa(int* listhexa,int* adjahex,int nhex) {
  *
  */
 int H2T_edgePoint(pHedge hash,int a,int b) {
-  int        key,mins,maxs;
+  MMG5_int  key,mins,maxs;
   hedge     *ha;
 
   /* compute key */
@@ -213,7 +213,7 @@ int H2T_edgePoint(pHedge hash,int a,int b) {
  *
  */
 int H2T_edgePut(pHedge hash,int a,int b,int np) {
-  int        key,mins,maxs;
+  MMG5_int  key,mins,maxs;
   hedge     *ha;
 
   mins = a;
