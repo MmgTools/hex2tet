@@ -124,7 +124,7 @@ LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 SET(MMG_DIR "" CACHE PATH "Installation directory for mmg")
 
-FIND_PACKAGE(Mmg)
+FIND_PACKAGE(MMG)
 
 IF ( NOT MMG_FOUND )
   MESSAGE ( FATAL_ERROR "ERROR: The installation directory for mmg is required:"
@@ -149,7 +149,7 @@ ENDIF ( )
 # add SCOTCH library?
 SET(SCOTCH_DIR "" CACHE PATH "Installation directory for scotch")
 
-FIND_PACKAGE(Scotch)
+FIND_PACKAGE(SCOTCH)
 
 IF ( NOT SCOTCH_FOUND )
   MESSAGE ( WARNING "Scotch library not found:"
