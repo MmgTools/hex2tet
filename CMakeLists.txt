@@ -160,6 +160,17 @@ IF ( NOT SCOTCH_FOUND )
     "to your scotch directory.")
 ENDIF ( )
 
+If ( SCOTCH_FOUND )
+  add_definitions(-DUSE_SCOTCH)
+
+  MESSAGE(STATUS
+    "Compilation with scotch: ${SCOTCH_LIBRARIES}")
+  SET( LIBRARIES  ${LIBRARIES} ${SCOTCH_LIBRARIES})
+
+  INCLUDE_DIRECTORIES(${SCOTCH_INCLUDE_DIRS})
+
+ENDIF()
+
 ############################################################################
 #####
 #####         Elastic
