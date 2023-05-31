@@ -36,11 +36,13 @@
  * in the MMG3D_loadmesh function
  *
  */
+
 int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   FILE*            inm;
   char             data[128],chaine[128];
   double           x,y,z;
-  int              dim,np,nhex,ref,k,iadr;
+  int              dim,np,nhex,ref,k,iadr,na;
+  MMG5_int         v0, v1;
 
   strcpy(data,filename);
   if( !(inm = fopen(data,"r")) ) {
@@ -50,6 +52,7 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   fprintf(stdout,"  %%%% %s OPENED\n",data);
 
   strcpy(chaine,"D");
+
   while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
     if(!strncmp(chaine,"Dimension",strlen("Dimension"))) {
       fscanf(inm,"%d",&dim);
@@ -60,11 +63,22 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
       continue;
     } else if(!strncmp(chaine,"Vertices",strlen("Vertices"))) {
       fscanf(inm,"%d",&np);
-      fprintf(stdout,"  READING %d VERTICES\n",np);
-      if ( H2T_Set_meshSize(mmgMesh,np,nbhex,0,0) != 1 ) {
-        return -1;
-      }
+      continue;
+    } else if(!strncmp(chaine,"Edges",strlen("Edges"))) {
+      fscanf(inm,"%d",&na);
+      continue;
+    }
+  }
 
+  if ( H2T_Set_meshSize(mmgMesh,np,nbhex,0,na) != 1 ) {
+    return -1;
+  }
+  rewind(inm);
+
+  while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
+    if(!strncmp(chaine,"Vertices",strlen("Vertices"))) {
+      fscanf(inm,"%d",&np);
+      fprintf(stdout,"  READING %d VERTICES\n",np);
       for (k=1; k<=np; k++) {
         fscanf(inm,"%lf %lf %lf %d",&x,&y,&z,&ref);
         if ( H2T_Set_vertex(mmgMesh,x  ,y  ,z  ,ref,  k) != 1 ) {
@@ -82,6 +96,16 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
                &tabhex[iadr+5],&tabhex[iadr+6],&tabhex[iadr+7],&tabhex[iadr+8]);
       }
       continue;
+    } else if(!strncmp(chaine,"Edges",strlen("Edges"))) {
+      fscanf(inm,"%d",&na);
+      fprintf(stdout,"  READING %d EDGES\n",na);
+      for (k=1; k<=na; k++) {
+        fscanf(inm,"%" MMG5_PRId " %" MMG5_PRId " %d", &v0, &v1, &ref);
+	if ( H2T_Set_edge(mmgMesh, v0, v1, ref, k) != 1 ) {
+          return -1;
+	}
+      }
+      continue;
     }
   }
   fclose(inm);
@@ -93,6 +117,8 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
 
   return nhex;
 }
+
+
 
 /**
  * \param *prog pointer toward the program name.

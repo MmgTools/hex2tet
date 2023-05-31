@@ -121,12 +121,12 @@ int _H2T_Init_mesh_var(va_list argptr) {
 
    ne = 6*nhexa;
 
-   if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 0, 0, 0) != 1)
+   if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 0, 0, na) != 1)
      return 0;
 
-   if ( nquad || na ) {
-     printf("  ## Warning: %s: treatment of input quadrangles and edges not yet implemented:\n"
-            "%d quadrangles and %d edges ignored.\n",__func__,nquad,na);
+   if ( nquad ) {
+     printf("  ## Warning: %s: treatment of input quadrangles not yet implemented:\n"
+            "%d quadrangles ignored.\n",__func__,nquad);
    }
 
    /* Set all tetra as unused */
@@ -143,3 +143,9 @@ int _H2T_Init_mesh_var(va_list argptr) {
     return MMG3D_Set_vertex(mesh,c0,c1,c2,ref,pos);
 
   }
+
+int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, MMG5_int ref, MMG5_int pos) {
+
+  return MMG3D_Set_edge(mesh, v0, v1, ref, pos);
+
+}

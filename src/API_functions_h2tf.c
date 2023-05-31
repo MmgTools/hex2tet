@@ -55,6 +55,18 @@ FORTRAN_NAME(H2T_SET_VERTEX,h2t_set_vertex,
 }
 
 /**
+ * See \ref H2T_Set_edge function in \ref libhex2tet.h file.
+ */
+FORTRAN_NAME(H2T_SET_EDGE,h2t_set_edge,
+             (MMG5_pMesh *mesh, MMG5_int* v0, MMG5_int* v1, int* ref,
+              int* pos, int* retval),
+             (mesh,v0,v1,ref,pos,retval)) {
+
+  *retval = H2T_Set_edge(*mesh,*v0,*v1,*ref,*pos);
+  return;
+}
+
+/**
  * See \ref H2T_libhex2tet function in \ref libhex2tet.h file.
  */
 FORTRAN_NAME(H2T_LIBHEX2TET,h2t_libhex2tet,
