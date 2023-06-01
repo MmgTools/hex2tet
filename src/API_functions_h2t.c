@@ -144,7 +144,7 @@ int _H2T_Init_mesh_var(va_list argptr) {
 
   }
 
-int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, MMG5_int ref, MMG5_int pos) {
+int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, int ref, int pos) {
 
   return MMG3D_Set_edge(mesh, v0, v1, ref, pos);
 
