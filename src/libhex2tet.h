@@ -136,6 +136,29 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
   int  H2T_Set_vertex(MMG5_pMesh mesh, double c0, double c1,
                       double c2, int ref,int pos);
 
+  /**
+   * \param mesh pointer toward the mesh structure.
+   * \param v0 first end point of the edge.
+   * \param v1 second end point of the edge.
+   * \param ref edge reference.
+   * \param pos position of the edge in the mesh.
+   * \return 1.
+   *
+   * Set edge of end points \a v0, \a v1 and reference \a ref
+   * at position \a pos in mesh structure
+   *
+   * \remark Fortran interface:
+   * >   SUBROUTINE H2T_SET_EDGE(mesh,v0,v1,ref,pos,retval)\n
+   * >     MMG5_DATA_PTR_T,INTENT(INO UT) :: mesh\n
+   * >     INTEGER(MMG5F_INT), INTENT(IN) :: v0,v1\n
+   * >     INTEGER, INTENT(IN)            :: ref,pos\n
+   * >     INTEGER, INTENT(OUT)           :: retval\n
+   * >   END SUBROUTINE\n
+   *
+   */
+  int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1,
+		   int ref, int pos);
+
 #ifdef __cplusplus
 }
 #endif
