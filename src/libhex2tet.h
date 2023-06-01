@@ -149,14 +149,15 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
    *
    * \remark Fortran interface:
    * >   SUBROUTINE H2T_SET_EDGE(mesh,v0,v1,ref,pos,retval)\n
-   * >     MMG5_DATA_PTR_T,INTENT(INOUT) :: mesh\n
-   * >     INTEGER, INTENT(IN)           :: c0,c1,ref,pos\n
-   * >     INTEGER, INTENT(OUT)          :: retval\n
+   * >     MMG5_DATA_PTR_T,INTENT(INO UT) :: mesh\n
+   * >     INTEGER(MMG5F_INT), INTENT(IN) :: v0,v1\n
+   * >     INTEGER, INTENT(IN)            :: ref,pos\n
+   * >     INTEGER, INTENT(OUT)           :: retval\n
    * >   END SUBROUTINE\n
    *
    */
   int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1,
-		   MMG5_int ref, MMG5_int pos);
+		   int ref, int pos);
 
 #ifdef __cplusplus
 }
