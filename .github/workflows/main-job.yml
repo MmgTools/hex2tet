@@ -10,5 +10,21 @@ jobs:
   hex2tet:
     runs-on: macos-13
 
+    strategy:
+      matrix:
+        os: [ubuntu-latest,macos-latest]
+        mmg5_int: [int32_t, int64_t]
+
     steps:
-      - run: echo "test 1"
+      - name: Install mmg
+        run: |
+        git clone git@github.com:MmgTools/mmg.git
+        cd mmg
+        mkdir build
+        cd build
+        cmake -DMMG5_INT=${{ matrix.mmg5_int }} ..
+        make install
+
+      -name: Compile hex2tet
+        run: |
+        cmake -Shex2tet -Bbuild 
