@@ -11,4 +11,4 @@ jobs:
     runs-on: macos-13
 
     steps:
-      - echo "test 1"
+      - run: echo "test 1"
