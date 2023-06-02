@@ -157,7 +157,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
    *
    */
   int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1,
-		   int ref, int pos);
+		   MMG5_int ref, MMG5_int pos);
 
 #ifdef __cplusplus
 }
