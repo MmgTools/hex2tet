@@ -52,7 +52,8 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
 
   if ( 6*nbhexa >= mmgMesh->nemax ) {
     printf("\n  -- ERROR: Not enough memory to store the final mesh"
-           " (max number of tetra=%d while the number of hexa times 6 is %d.\n",
+           " (max number of tetra=%" MMG5_PRId " while the number of hexa times"
+           " 6 is % " MMG5_PRId ".\n",
            mmgMesh->nemax,nbhexa*6);
     return H2T_STRONGFAILURE;
   }

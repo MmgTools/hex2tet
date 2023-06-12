@@ -43,6 +43,18 @@ FORTRAN_NAME(H2T_SET_MESHSIZE,h2t_set_meshsize,
 }
 
 /**
+ * See \ref H2T_loadMesh function in \ref libhex2tet.h file.
+ */
+FORTRAN_NAME(H2T_LOADMESH,h2t_loadmesh,
+             (MMG5_pMesh *mesh, int *tabhex, int *nbhex,
+              char* filename, int *strlen0,int *retval),
+             (mesh,tabhex,nbhex,filename,strlen0,retval)) {
+
+  *retval = H2T_loadMesh(*mesh,tabhex,*nbhex,filename);
+  return;
+}
+
+/**
  * See \ref H2T_Set_vertex function in \ref libhex2tet.h file.
  */
 FORTRAN_NAME(H2T_SET_VERTEX,h2t_set_vertex,

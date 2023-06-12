@@ -55,15 +55,39 @@ extern "C" {
  * main library function: cut hexa into tetra.
  *
  * \remark Fortran interface:
- * >   SUBROUTINE H2T_LIBHEX2TET(mmgMesh,hexa,nbHexa,retval)\n
+ * >   SUBROUTINE H2T_LIBHEX2TET(mmgMesh,hexa,nbHexa,filename,strlen0,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
  * >     INTEGER, DIMENSION(*), INTENT(IN) :: hexa\n
  * >     INTEGER, INTENT(IN)               :: nbHexa\n
+ * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
+ * >     INTEGER, INTENT(IN)               :: strlen0\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n
  *
  */
 int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
+
+/**
+ * \param mmgMesh pointer toward the mesh.
+ * \param tabhex array of hexa.
+ * \param nbhex number of hexa.
+ * \param filname name of input file.
+ *
+ * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
+ * fail, 1 otherwise.
+ *
+ * Read mesh data.
+ *
+ * * \remark Fortran interface:
+ * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,nbhex,retval)\n
+ * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
+ * >     INTEGER, DIMENSION(*)             :: tabhex\n
+ * >     INTEGER, INTENT(IN)               :: nbhex\n
+ * >     INTEGER, INTENT(OUT)              :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename);
 
 
 /**
