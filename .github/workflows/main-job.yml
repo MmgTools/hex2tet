@@ -1,30 +1,66 @@
 name: hex2tet CI
 
 on: 
-  #run tests on push events
   push:
-  #run tests on PR events
   pull_request:
+  workflow_dispatch:
+
+env:
+  BISON_PATH: /usr/bin/bison
 
 jobs:
-  hex2tet:
-    runs-on: macos-13
+  building:
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [ubuntu-latest,macos-latest]
-        mmg5_int: [int32_t, int64_t]
+        int: [32, 64]
+        scotch: [off, on]
+      fail-fast: false
 
     steps:
+      - name: Setup Fortran
+        if: ${{ matrix.os }} == 'macos-latest'
+        uses: awvwgk/setup-fortran@v1.1
+
+      - name: Install bison
+        if: ${{ matrix.scotch == 'on' && matrix.os == 'macos-latest' }}
+        run: |
+          brew install bison
+          echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
+          
+      - name: Install scotch
+        if: matrix.scotch == 'on'
+        run : |
+          git clone https://gitlab.inria.fr/scotch/scotch.git
+          cmake -Sscotch -Bbuild_scotch -DINTSIZE=${{ matrix.int }} \
+          -DCMAKE_INSTALL_PREFIX=install_scotch -DBUILD_PTSCOTCH=OFF \
+          -DBISON_EXECUTABLE=$BISON_PATH
+          cmake --build build_scotch --target install
+
       - name: Install mmg
         run: |
-        git clone git@github.com:MmgTools/mmg.git
-        cd mmg
-        mkdir build
-        cd build
-        cmake -DMMG5_INT=${{ matrix.mmg5_int }} ..
-        make install
+          git clone https://github.com/MmgTools/mmg.git
+          cmake -Smmg -Bbuild_mmg -DMMG5_INT=int${{ matrix.int }}_t \
+          -DBUILD_SHARED_LIBS=NO -DUSE_SCOTCH=${{ matrix.scotch }} \
+          -DSCOTCH_DIR=install_scotch
+          cmake --build build_mmg
 
-      -name: Compile hex2tet
+      # checkout the provided branch name if workflow is manually run
+      - uses: actions/checkout@v3
+        if: inputs.branch_name
+        with:
+          ref: ${{github.event.inputs.branch}}
+          path: hex2tet
+
+      - uses: actions/checkout@v3
+        if: inputs.branch_name == ''
+        with:
+          path: hex2tet
+
+      - name: Compile hex2tet
         run: |
-        cmake -Shex2tet -Bbuild 
+          cmake -Shex2tet -Bbuild_h2t -DMMG_DIR=build_mmg -DUSE_SCOTCH=${{ matrix.scotch }} \
+          -DSCOTCH_DIR=install_scotch
+          cmake --build build_h2t
