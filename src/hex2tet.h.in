@@ -79,7 +79,7 @@ static const unsigned char H2T_tidir[4][3] = { {1,2,3}, {0,3,2}, {0,1,3}, {0,2,1
  * \warning to replace with _MMG5_hedge struct
  */
 typedef struct {
-  int      min,max,iel,nxt;
+  MMG5_int      min,max,iel,nxt;
 } hedge;
 
 
@@ -87,7 +87,7 @@ typedef struct {
  * \warning to replace with _MMG5_Hash struct
  */
 typedef struct {
-  int      size,nhmax,hnxt;
+  MMG5_int      size,nhmax,hnxt;
   hedge   *item;
 } Hedge;
 typedef Hedge * pHedge;
@@ -98,10 +98,11 @@ double H2T_voltet(MMG5_pMesh ,int );
 
 int    H2T_hashGetRef(MMG5_pMesh mesh,MMG5_Hash *hash);
 int    H2T_hashQuad(MMG5_pMesh mesh,MMG5_Hash *hash);
-int    H2T_hashHexa(int* ,int* ,int );
+int    H2T_hashHexa(int* ,MMG5_int* ,int );
+
 int    H2T_edgePut(pHedge ,int ,int ,int );
 int    H2T_edgePoint(pHedge ,int ,int );
 
-int    H2T_cuthex(MMG5_pMesh ,pHedge ,int* ,int* ,int ) ;
+int    H2T_cuthex(MMG5_pMesh ,pHedge ,int* ,MMG5_int* ,int ) ;
 
 int    _H2T_Init_mesh_var(va_list argptr);

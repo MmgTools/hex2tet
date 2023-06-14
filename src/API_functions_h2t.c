@@ -122,8 +122,26 @@ int  H2T_Set_meshSize(MMG5_pMesh mesh,int np,int nhexa,int nquad,int na) {
   ne = 6*nhexa;
 
   /* in the output there will be 2*nquad triangles */
-  if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 2*nquad, nquad, 0) != 1)
+  if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 2*nquad, nquad, na) != 1)
     return 0;
+
+   if ( nquad ) {
+     printf("  ## Warning: %s: treatment of input quadrangles not yet implemented:\n"
+            "%d quadrangles ignored.\n",__func__,nquad);
+   }
+
+   /* Set all tetra as unused */
+   mesh->nenil = 1;
+   for ( k=mesh->nenil; k<mesh->nemax-1; k++)
+     mesh->tetra[k].v[3] = k+1;
+
+   return 1;
+ }
+
+  int  H2T_Set_vertex(MMG5_pMesh mesh, double c0, double c1,
+                      double c2, int ref,int pos) {
+
+    return MMG3D_Set_vertex(mesh,c0,c1,c2,ref,pos);
 
   if ( na ) {
     printf("  ## Warning: %s: treatment of input edges not yet implemented:\n"
@@ -170,4 +188,10 @@ int  H2T_Set_quadrilateral(MMG5_pMesh mesh,
                            int ref,int pos) {
 
   return MMG3D_Set_quadrilateral(mesh,i0,i1,i2,i3,ref,pos);
+}
+
+int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, MMG5_int ref, MMG5_int pos) {
+
+  return MMG3D_Set_edge(mesh, v0, v1, ref, pos);
+
 }

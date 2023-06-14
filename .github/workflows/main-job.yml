@@ -1,0 +1,14 @@
+name: hex2tet CI
+
+on: 
+  #run tests on push events
+  push:
+  #run tests on PR events
+  pull_request:
+
+jobs:
+  hex2tet:
+    runs-on: macos-13
+
+    steps:
+      - run: echo "test 1"
