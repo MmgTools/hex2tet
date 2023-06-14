@@ -281,12 +281,9 @@ SET( h2t_headers
 # Install header files in /usr/local or equivalent
 INSTALL(FILES ${h2t_headers} DESTINATION include/hex2tet COMPONENT headers)
 
-COPY_FORTRAN_HEADER_AND_CREATE_TARGET ( ${H2T_BUILD_DIR} ${H2T_INCLUDE} hex2tet )
+# Copy header files in project directory at every build step
+COPY_HEADERS_AND_CREATE_TARGET ( ${H2T_SOURCE_DIR} ${H2T_BUILD_DIR} ${H2T_INCLUDE} hex2tet )
 
-# Copy header files in project directory at configuration step
-# (generated file don't exists yet or are outdated)
-FILE(INSTALL  ${h2t_headers} DESTINATION ${H2T_INCLUDE}
-  PATTERN "libhex2tet*f.h"  EXCLUDE)
 
 ############################################################################
 #####
