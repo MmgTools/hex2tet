@@ -91,12 +91,12 @@ int H2T_decouphex(MMG5_pMesh mesh, pHedge hed,int* p,int ref,int *ncut,int nhex)
   if ( !H2T_Add_tetra(mesh,p[1],p[3],p[7],p[2],ref,*ncut,nhex) ) return 0;
 
   /** Add edges to the hashtable */
-  H2T_edgePut(hed,p[0],p[7],2);
-  H2T_edgePut(hed,p[1],p[3],2);
-  H2T_edgePut(hed,p[2],p[7],2);
-  H2T_edgePut(hed,p[1],p[6],2);
-  H2T_edgePut(hed,p[1],p[4],2);
-  H2T_edgePut(hed,p[5],p[7],2);
+  if ( !H2T_edgePut(hed,p[0],p[7],2) ) return 0;
+  if ( !H2T_edgePut(hed,p[1],p[3],2) ) return 0;
+  if ( !H2T_edgePut(hed,p[2],p[7],2) ) return 0;
+  if ( !H2T_edgePut(hed,p[1],p[6],2) ) return 0;
+  if ( !H2T_edgePut(hed,p[1],p[4],2) ) return 0;
+  if ( !H2T_edgePut(hed,p[5],p[7],2) ) return 0;
 
   ++(*ncut);
 
@@ -176,15 +176,15 @@ static int H2T_checkcaseopp(int ph[8],int nu1,int nu2,pHedge hed) {
  * form the first one.
  *
  */
-int H2T_chkAdja(MMG5_pMesh mesh,int* listhexa,int* adjahex,int nhex) {
+int H2T_chkAdja(MMG5_pMesh mesh,int* listhexa,MMG5_int* adjahex,int nhex) {
   int *list,*mark;
   int icurc,ipil,iadr,adj,count,k,i;
 
   /** Allocs */
   list = mark = NULL;
-  list = (int*) calloc(7*nhex+1,sizeof(int));
+  list = (int*) calloc(7*nhex+1,sizeof(long long));
   assert(list);
-  mark = (int*) calloc(nhex+1,sizeof(int));
+  mark = (int*) calloc(nhex+1,sizeof(long long));
   assert(mark);
 
 
@@ -258,7 +258,7 @@ int H2T_chkAdja(MMG5_pMesh mesh,int* listhexa,int* adjahex,int nhex) {
  *       3----------2          .----------.           .----------.
  *
  */
-int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
+int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nhex) {
   MMG5_pPoint    ppt;
   int            i,ih,k,nu1,nu2,nu3,nu4,adj,icas0,icasopp,nncut;
   int            *list,*mark,p[8],ipil,icurc,iface,iadr;
@@ -272,9 +272,9 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
   }
 
   /* Alloc */
-  list = (int*) calloc(7*nhex+1,sizeof(int));
+  list = (int*) calloc(7*nhex+1,sizeof(long long));
   assert(list);
-  mark = (int*) calloc(nhex+1,sizeof(int));
+  mark = (int*) calloc(nhex+1,sizeof(long long));
   assert(mark);
 
   /* Stack initialization */
@@ -361,9 +361,9 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
             p[0] = ph[1]; p[1] = ph[2]; p[2] = ph[3]; p[3] = ph[0];
             p[4] = ph[5]; p[5] = ph[6]; p[6] = ph[7]; p[7] = ph[4];
           }
-          H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0;
         } else {
-          H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex);
+	  if ( !H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex) ) return 0;
         }
       } else if ( iface==4 ) {
         icas0 = H2T_checkcase(ph,nu2,nu1,hed);
@@ -388,9 +388,9 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
           //printf("iface 4 another edge founded ---> renum\n");
           p[0] = ph[3]; p[1] = ph[0]; p[2] = ph[1]; p[3] = ph[2];
           p[4] = ph[7]; p[5] = ph[4]; p[6] = ph[5]; p[7] = ph[6];
-          H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0;
         } else {
-          H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex) ) return 0;
         }
       } else {
         if ( ddebug)  printf("face %d renumbering\n",iface);//iface 0,2,3
@@ -446,7 +446,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
           break;
         }
 
-        H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+        if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0; 
       }
     }  else if ( H2T_edgePoint(hed,ph[H2T_hidir[iface][1]],ph[H2T_hidir[iface][3]]) ) {
       /** The edge 1-3 (opposite to 0-2) of iface exist */
@@ -491,9 +491,9 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
             p[0] = ph[2]; p[1] = ph[3]; p[2] = ph[0]; p[3] = ph[1];
             p[4] = ph[6]; p[5] = ph[7]; p[6] = ph[4]; p[7] = ph[5];
           }
-          H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0;
         } else {
-          H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex) ) return 0;
         }
       } else if ( iface==2 ) {
         icas0 = H2T_checkcase(ph,nu2,nu1,hed);
@@ -517,9 +517,9 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
           assert(i==3);
           p[0] = ph[1]; p[1] = ph[2]; p[2] = ph[3]; p[3] = ph[0];
           p[4] = ph[5]; p[5] = ph[6]; p[6] = ph[7]; p[7] = ph[4];
-          H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0;
         } else {
-          H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex);
+          if ( !H2T_decouphex(mesh,hed,ph,listhexa[9*k+8],&ncut,nhex) ) return 0;
         }
       }
       else {
@@ -573,7 +573,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
           }
           break;
         }
-        H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex);
+        if ( !H2T_decouphex(mesh,hed,p,listhexa[9*k+8],&ncut,nhex) ) return 0;
       }
     } else {
       /** We have no edge on iface: not normal because the adjacent
@@ -658,7 +658,10 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,int* adjahex,int nhex) {
       } else {
         nu1 = H2T_hidir[i][1];
         nu2 = H2T_hidir[i][3];
-        if ( !H2T_edgePoint(hed,ph[nu1],ph[nu2])) H2T_edgePut(hed,ph[nu1],ph[nu2],2);
+        if ( !H2T_edgePoint(hed,ph[nu1],ph[nu2])) { 
+	  iel = H2T_edgePut(hed,ph[nu1],ph[nu2],2);
+	}
+	if ( !iel ) return 0;
         if ( mesh->ne+1 >= mesh->nemax ) {
           H2T_MAXTET_ERROR_MESSAGE(__func__,__LINE__,mesh->nemax,ncut+nncut,nhex);
           fprintf(stdout,"%d new points.\n",nncut);
