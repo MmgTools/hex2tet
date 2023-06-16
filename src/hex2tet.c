@@ -46,6 +46,7 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   MMG5_int         v0, v1;
 
   posnp = posna = posnhex = posnr = 0;
+  na = nr = 0;
 
   strcpy(data,filename);
   if( !(inm = fopen(data,"r")) ) {

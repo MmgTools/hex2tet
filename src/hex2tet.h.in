@@ -99,7 +99,6 @@ double H2T_voltet(MMG5_pMesh ,int );
 int    H2T_hashGetRef(MMG5_pMesh mesh,MMG5_Hash *hash);
 int    H2T_hashQuad(MMG5_pMesh mesh,MMG5_Hash *hash);
 int    H2T_hashHexa(int* ,MMG5_int* ,int );
-
 int    H2T_edgePut(pHedge ,int ,int ,int );
 int    H2T_edgePoint(pHedge ,int ,int );
 
