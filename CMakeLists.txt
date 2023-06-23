@@ -146,19 +146,31 @@ ENDIF ( )
 #####         Scotch
 #####
 ############################################################################
-# add SCOTCH library?
+# Find SCOTCH library?
 SET(SCOTCH_DIR "" CACHE PATH "Installation directory for scotch")
 
-FIND_PACKAGE(SCOTCH)
+# add Scotch library?
+SET ( USE_SCOTCH "" CACHE STRING "Use SCOTCH tool for renumbering (ON, OFF or <empty>)" )
+SET_PROPERTY(CACHE USE_SCOTCH PROPERTY STRINGS "ON" "OFF" "")
 
-IF ( NOT SCOTCH_FOUND )
-  MESSAGE ( WARNING "Scotch library not found:"
-    "Using scotch reduce the execution time of mmg3d "
-    "(see https://gforge.inria.fr/frs/?group_id=248 to download it)."
-    "If you have already installed Scotch and want to use it, "
-    "please set the CMake variable or environment variable SCOTCH_DIR "
-    "to your scotch directory.")
-ENDIF ( )
+IF ( NOT DEFINED USE_SCOTCH OR USE_SCOTCH STREQUAL "" OR USE_SCOTCH MATCHES " +" )
+  # Variable is not provided by user
+  FIND_PACKAGE(SCOTCH QUIET)
+
+ELSE ()
+  IF ( USE_SCOTCH )
+    FIND_PACKAGE(SCOTCH)
+
+    IF ( NOT SCOTCH_FOUND )
+      MESSAGE ( WARNING "Scotch library not found:"
+        "Using scotch reduce the execution time of mmg3d "
+        "(see https://gforge.inria.fr/frs/?group_id=248 to download it)."
+        "If you have already installed Scotch and want to use it, "
+        "please set the CMake variable or environment variable SCOTCH_DIR "
+        "to your scotch directory.")
+    ENDIF ( )
+  ENDIF()
+ENDIF()
 
 If ( SCOTCH_FOUND )
   add_definitions(-DUSE_SCOTCH)
@@ -230,7 +242,7 @@ FILE(
   )
 IF (NOT WIN32)
   FIND_LIBRARY(M_LIB m)
-  SET( LIBRARIES ${M_LIB} ${LIBRARIES})
+  SET( LIBRARIES ${LIBRARIES} ${M_LIB})
 ENDIF()
 
 ############################################################################
