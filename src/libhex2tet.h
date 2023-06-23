@@ -89,6 +89,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  */
 int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename);
 
+int H2T_loadNpyArray(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
 
 /**
  * \param starter dummy argument used to initialize the variadic argument

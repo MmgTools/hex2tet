@@ -90,6 +90,18 @@ typedef struct {
 } Hedge;
 typedef Hedge * pHedge;
 
+/**
+ * \enum H2T_Format
+ * \brief Type of supported file format
+ */
+enum H2T_Format {
+  H2T_FMT_MeditASCII, /*!< ASCII Medit (.mesh) */
+  H2T_FMT_Numpy, /*!< Numpy array (.npy) */
+  H2T_FMT_Unknown /*!< Unrecognized */
+};
+
+int    H2T_Get_format( char *ptr, int fmt );
+
 int    H2T_chkorient(MMG5_pMesh ,int* ,int );
 double H2T_quickvol(double *,double *,double *,double *);
 double H2T_voltet(MMG5_pMesh ,int );

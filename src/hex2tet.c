@@ -194,6 +194,87 @@ int H2T_parsar(int argc,char *argv[],MMG5_pMesh mesh,MMG5_pSol met) {
 }
 
 /**
+ * \param fmt file format.
+ *
+ * \return The name of the file format in a string.
+ *
+ * Print the name of the file format associated to \a fmt.
+ *
+ */
+static inline
+const char* H2T_Get_formatName(enum MMG5_Format fmt)
+{
+  switch (fmt)
+  {
+  case H2T_FMT_MeditASCII:
+    return "H2T_FMT_MeditASCII";
+    break;
+  case H2T_FMT_Numpy:
+    return "H2T_FMT_Numpy";
+    break;
+  default:
+    return "H2T_Unknown";
+  }
+}
+
+/**
+ * \param filename string containing a filename
+ *
+ * \return pointer toward the filename extension or toward the end of the string
+ * if no extension have been founded
+ *
+ * Get the extension of the filename string. Do not consider '.o' as an extension.
+ *
+ * \warning copy past from Mmg
+ */
+static inline
+char *H2T_Get_filenameExt( char *filename ) {
+  const char pathsep='/';
+  char       *dot,*lastpath;
+
+  if ( !filename ) {
+    return NULL;
+  }
+
+  dot = strrchr(filename, '.');
+  lastpath = (pathsep == 0) ? NULL : strrchr (filename, pathsep);
+
+  if ( (!dot) || dot == filename || (lastpath>dot) || (!strcmp(dot,".o")) ) {
+    /* No extension */
+    return filename + strlen(filename);
+  }
+
+  return dot;
+}
+
+/**
+ * \param ptr pointer toward the file extension (dot included)
+ * \param fmt default file format.
+ *
+ * \return and index associated to the file format detected from the extension.
+ *
+ * Get the wanted file format from the mesh extension. If \a fmt is provided, it
+ * is used as default file format (\a ptr==NULL), otherwise, the default file
+ * format is the medit one.
+ *
+ */
+int H2T_Get_format( char *ptr, int fmt ) {
+  /* Default is the Medit file format or a format given as input */
+  int defFmt = fmt;
+
+  if ( !ptr ) return defFmt;
+
+  if ( !strncmp( ptr,".mesh",strlen(".mesh") ) ) {
+    return H2T_FMT_MeditASCII;
+  }
+  else if ( !strncmp ( ptr,".npy",strlen(".npy") ) ) {
+    return H2T_FMT_Numpy;
+  }
+
+  return defFmt;
+}
+
+/**
  * \param argc number of command line arguments.
  * \param argv command line arguments.
  * \return \ref H2T_SUCCESS if success.
@@ -207,8 +288,8 @@ int main(int argc,char *argv[]) {
   FILE*           inm;
   MMG5_pMesh      mmgMesh;
   MMG5_pSol       mmgSol;
-  char            chaine[128];
-  int             *hexa,nbhex,ier;
+  char            chaine[128],*ptr;
+  int             *hexa,nbhex,ier,fmtin;
 
   fprintf(stdout,"\n  -- H2T, Release %s (%s) \n",H2T_VER,H2T_REL);
   fprintf(stdout,"     %s\n",H2T_CPY);
@@ -232,26 +313,56 @@ int main(int argc,char *argv[]) {
   /* command line */
   if ( !H2T_parsar(argc,argv,mmgMesh,mmgSol) )  return H2T_STRONGFAILURE;
 
-  /* Input data and creation of the hexa array */
-  if( !(inm = fopen(mmgMesh->namein,"r")) ) {
-    fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
-    return 0;
-  }
+  ptr   = H2T_Get_filenameExt(mmgMesh->namein);
+  fmtin = H2T_Get_format(ptr,MMG5_FMT_MeditASCII);
 
-  nbhex = 0;
-  strcpy(chaine,"D");
-  while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
-    if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
-      fscanf(inm,"%d",&nbhex);
-      fprintf(stdout,"  READING %d HEXA\n",nbhex);
-      hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
-      assert(hexa);
-      break;
+  int **hexa2;
+  switch ( fmtin ) {
+
+  case ( H2T_FMT_Numpy ):
+    nbhex = H2T_loadNpyArray(mmgMesh,hexa2,mmgMesh->namein);
+
+    printf("nbpt / nbhex %lld %d\n",mmgMesh->np,nbhex);
+    for (int i=1; i<=mmgMesh->np; ++i) {
+      printf("%f %f %f %lld\n",mmgMesh->point[i].c[0],mmgMesh->point[i].c[1],mmgMesh->point[i].c[2],mmgMesh->point[i].ref);
     }
-  }
-  fclose(inm);
 
-  nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+    for (int i=1; i<=nbhex; ++i) {
+      printf("%d %d %d %d %d %d %d %d %d\n",*hexa2[0],*hexa2[1],*hexa2[2],*hexa2[3],
+             *hexa2[4],*hexa2[5],*hexa2[6],*hexa2[7],*hexa2[8]);
+    }
+
+
+    break;
+
+  case ( H2T_FMT_MeditASCII ):
+
+    /* Input data and creation of the hexa array */
+    if( !(inm = fopen(mmgMesh->namein,"r")) ) {
+      fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
+      return 0;
+    }
+
+    nbhex = 0;
+    strcpy(chaine,"D");
+    while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
+      if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
+        fscanf(inm,"%d",&nbhex);
+        fprintf(stdout,"  READING %d HEXA\n",nbhex);
+        hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
+        assert(hexa);
+        break;
+      }
+    }
+    fclose(inm);
+
+    nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+    break;
+
+  default:
+    fprintf(stderr,"  ** I/O AT FORMAT %s NOT IMPLEMENTED.\n",H2T_Get_formatName(fmtin) );
+    return H2T_STRONGFAILURE;
+  }
 
   if ( nbhex < 0 ) {
     return H2T_STRONGFAILURE;
