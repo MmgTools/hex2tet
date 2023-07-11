@@ -319,49 +319,49 @@ int main(int argc,char *argv[]) {
   int **hexa2;
   switch ( fmtin ) {
 
-  case ( H2T_FMT_Numpy ):
-    nbhex = H2T_loadNpyArray(mmgMesh,hexa2,mmgMesh->namein);
+    case ( H2T_FMT_Numpy ):
+      //nbhex = H2T_loadNpyArray(mmgMesh,hexa2,mmgMesh->namein);
+      nbhex = H2T_loadnpy(mmgMesh,hexa2,mmgMesh->namein);
 
-    printf("nbpt / nbhex %lld %d\n",mmgMesh->np,nbhex);
-    for (int i=1; i<=mmgMesh->np; ++i) {
-      printf("%f %f %f %lld\n",mmgMesh->point[i].c[0],mmgMesh->point[i].c[1],mmgMesh->point[i].c[2],mmgMesh->point[i].ref);
-    }
-
-    for (int i=1; i<=nbhex; ++i) {
-      printf("%d %d %d %d %d %d %d %d %d\n",*hexa2[0],*hexa2[1],*hexa2[2],*hexa2[3],
-             *hexa2[4],*hexa2[5],*hexa2[6],*hexa2[7],*hexa2[8]);
-    }
-
-
-    break;
-
-  case ( H2T_FMT_MeditASCII ):
-
-    /* Input data and creation of the hexa array */
-    if( !(inm = fopen(mmgMesh->namein,"r")) ) {
-      fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
-      return 0;
-    }
-
-    nbhex = 0;
-    strcpy(chaine,"D");
-    while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
-      if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
-        fscanf(inm,"%d",&nbhex);
-        fprintf(stdout,"  READING %d HEXA\n",nbhex);
-        hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
-        assert(hexa);
-        break;
+      printf("nbpt / nbhex %lld %d\n",mmgMesh->np,nbhex);
+      for (int i=1; i<=mmgMesh->np; ++i) {
+        printf("%f %f %f %lld\n",mmgMesh->point[i].c[0],mmgMesh->point[i].c[1],mmgMesh->point[i].c[2],mmgMesh->point[i].ref);
       }
-    }
-    fclose(inm);
 
-    nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
-    break;
+      for (int i=1; i<=nbhex; ++i) {
+        printf("%d %d %d %d %d %d %d %d %d\n",*hexa2[0],*hexa2[1],*hexa2[2],*hexa2[3],
+               *hexa2[4],*hexa2[5],*hexa2[6],*hexa2[7],*hexa2[8]);
+      }
 
-  default:
-    fprintf(stderr,"  ** I/O AT FORMAT %s NOT IMPLEMENTED.\n",H2T_Get_formatName(fmtin) );
-    return H2T_STRONGFAILURE;
+      break;
+
+    case ( H2T_FMT_MeditASCII ):
+
+      /* Input data and creation of the hexa array */
+      if( !(inm = fopen(mmgMesh->namein,"r")) ) {
+        fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
+        return 0;
+      }
+
+      nbhex = 0;
+      strcpy(chaine,"D");
+      while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
+        if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
+          fscanf(inm,"%d",&nbhex);
+          fprintf(stdout,"  READING %d HEXA\n",nbhex);
+          hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
+          assert(hexa);
+          break;
+        }
+      }
+      fclose(inm);
+
+      nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+      break;
+
+    default:
+      fprintf(stderr,"  ** I/O AT FORMAT %s NOT IMPLEMENTED.\n",H2T_Get_formatName(fmtin) );
+      return H2T_STRONGFAILURE;
   }
 
   if ( nbhex < 0 ) {
