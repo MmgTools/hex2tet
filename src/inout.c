@@ -20,13 +20,14 @@ int H2T_npy_point_index(int i,int j,int k, int *n) {
   return n[1]*n[2]*i + n[2]*j + k + 1;
 }
 
-int  H2T_loadnpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
+int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   FILE* inm;
   unsigned char buffer = 0x00;
   char* str = NULL;
   int pos1, pos2, dim = 0, nm, t[3];
   MMG5_int np, nhex, ne, i, j, k, ref, pos;
+  int* dummy;
 
   /* Input data and creation of the hexa array */
   if( !(inm = fopen(mmgMesh->namein,"rb")) ) {
@@ -43,27 +44,27 @@ int  H2T_loadnpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   
   /* Read array sizes */
   while (!(buffer == 0x29)) {
+  
     pos1 = ftell(inm);
-    while (!(buffer == 0x2c) || !(buffer == 0x29)) {
+    do {
       fread(&buffer,sizeof(buffer),1,inm);
-    }
-    dim += 1;
+    } while (!(buffer == 0x2c || buffer == 0x29));
+   
     pos2 = ftell(inm);
-
-    str = malloc(sizeof(char)*(pos2-pos1-1));
-
+    
+    str = malloc(sizeof(char)*(pos2-pos1-1));   
     fseek(inm, pos1, 0);
-    nm = fread(str, 1, pos2-pos1-1, inm);
+    nm = fread(str, 1, pos2-pos1-1, inm);   
     sscanf(str, "%i", &t[dim]);
     free(str);
-
     fread(&buffer,sizeof(buffer),1,inm);
+    dim += 1;
   }
 
   if( !(dim == 3) ) {
     fprintf(stderr,"  ** ERROR : WRONG DIMENSION FOR INPUT DATA."
                    " EXPECTED DIMENSION = 3. PROVIDED DIMENSION = %i \n",dim);
-    return 0;
+    return -1;
   }
 
   /* Reach end of header */
@@ -74,6 +75,9 @@ int  H2T_loadnpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   np   = t[0]*t[1]*t[2];
   nhex = (t[0]-1)*(t[1]-1)*(t[2]-1);
   ne   = 4 * ((t[0]-1)+(t[1]-1)+(t[2]-1));
+
+  printf("%lli %lli %lli \n", np, nhex, ne);
+  printf("%i %i %i \n", t[0],t[1],t[2]);
 
   if ( H2T_Set_meshSize(mmgMesh,np,nhex,0,ne) != 1 ) {
     return -1;
@@ -96,20 +100,20 @@ int  H2T_loadnpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   /* Hexahedra */
   pos = 1;
-  for ( i=0; i<t[0]; ++i ) {
-    for ( j=0; j<t[1]; ++j ) {
-      for ( k=0; k<t[2]; ++k ) {
+  for ( i=0; i<t[0]-1; ++i ) {
+    for ( j=0; j<t[1]-1; ++j ) {
+      for ( k=0; k<t[2]-1; ++k ) {
         int iadr = 9*pos;
 
         /* Hexa vertices */
-        *tabhex[iadr+0] = H2T_npy_point_index(i  ,j  ,k  ,t);
-        *tabhex[iadr+1] = H2T_npy_point_index(i+1,j  ,k  ,t);
-        *tabhex[iadr+2] = H2T_npy_point_index(i+1,j+1,k  ,t);
-        *tabhex[iadr+3] = H2T_npy_point_index(i  ,j+1,k  ,t);
-        *tabhex[iadr+4] = H2T_npy_point_index(i  ,j  ,k+1,t);
-        *tabhex[iadr+5] = H2T_npy_point_index(i+1,j  ,k+1,t);
-        *tabhex[iadr+6] = H2T_npy_point_index(i+1,j+1,k+1,t);
-        *tabhex[iadr+7] = H2T_npy_point_index(i  ,j+1,k+1,t);
+        (*tabhex)[iadr+0] = H2T_npy_point_index(i  ,j  ,k  ,t);
+        (*tabhex)[iadr+1] = H2T_npy_point_index(i+1,j  ,k  ,t);
+        (*tabhex)[iadr+2] = H2T_npy_point_index(i+1,j+1,k  ,t);
+        (*tabhex)[iadr+3] = H2T_npy_point_index(i  ,j+1,k  ,t);
+        (*tabhex)[iadr+4] = H2T_npy_point_index(i  ,j  ,k+1,t);
+        (*tabhex)[iadr+5] = H2T_npy_point_index(i+1,j  ,k+1,t);
+        (*tabhex)[iadr+6] = H2T_npy_point_index(i+1,j+1,k+1,t);
+        (*tabhex)[iadr+7] = H2T_npy_point_index(i  ,j+1,k+1,t);
 
         /* Hexa references */
         fread(&(*tabhex)[iadr+8],sizeof(int16_t),1,inm);
@@ -127,107 +131,6 @@ int  H2T_loadnpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   return nhex;
 }
-
-/* int H2T_loadNpyArray(MMG5_pMesh mmgMesh,int** tabhex,char *filename) {
-  PyObject *pName, *pModule, *pDict, *pFunc,*pValue;
-  int np,i,j,k,nbhex;
-
-  Py_Initialize();
-  pName = PyUnicode_FromString("numpy");
-
-  // Error checking of pName left out
-  pModule = PyImport_Import(pName);
-  Py_DECREF(pName);
-
-  assert ( pModule );
-
-  pFunc = PyObject_GetAttrString(pModule, "load");
-  assert ( pFunc && PyCallable_Check(pFunc) );
-
-  pName = PyUnicode_FromString(filename);
-  pValue = PyObject_CallObject(pFunc, pName);
-
-  Py_DECREF(pName);
-  Py_DECREF(pFunc);
-
-
-  if ( !pValue ) {
-    // File reading has failed
-    fprintf(stderr,"  %%%% %s UNABLE TO LOAD FILE\n",filename);
-    return -1;
-  }
-
-  int dim = PyArray_NDIM(pValue);
-
-  if ( dim != 3 ) {
-    fprintf(stderr," ## Error: Unexpected array dimension (%d while instead of"
-            " a 3D array)\n",dim);
-    Py_DECREF(pValue);
-    return -1;
-  }
-
-  npy_intp *n = PyArray_DIMS(pValue);
-
-  // Mesh size evaluation and mesh allocation
-  np = n[0]*n[1]*n[2];
-  nbhex = (n[0]-1)*(n[1]-1)*(n[2]-1);
-
-  if ( H2T_Set_meshSize(mmgMesh,np,nbhex,0,0) != 1 ) {
-    Py_DECREF(pValue);
-    return -1;
-  }
-  *tabhex = (int*) malloc(9*(nbhex+1)*sizeof(int));
-
-  // Point coordinates from grid indices 
-  int pos = 0;
-  int ref = 0;
-  for ( i=0; i<n[0]; ++i ) {
-    for ( j=0; j<n[1]; ++j ) {
-      for ( k=0; k<n[2]; ++k ) {
-        if ( H2T_Set_vertex(mmgMesh,(double)i ,(double)j ,(double)k,ref,++pos) != 1 ) {
-          return -1;
-        }
-      }
-    }
-  }
-
-  // Hexahedra
-  pos = 1;
-  for ( i=0; i<n[0]; ++i ) {
-    for ( j=0; j<n[1]; ++j ) {
-      for ( k=0; k<n[2]; ++k ) {
-        int iadr = 9*pos;
-
-        // Hexa vertices
-        *tabhex[iadr+0] = H2T_npy_point_index(i  ,j  ,k  ,n);
-        *tabhex[iadr+1] = H2T_npy_point_index(i+1,j  ,k  ,n);
-        *tabhex[iadr+2] = H2T_npy_point_index(i+1,j+1,k  ,n);
-        *tabhex[iadr+3] = H2T_npy_point_index(i  ,j+1,k  ,n);
-        *tabhex[iadr+4] = H2T_npy_point_index(i  ,j  ,k+1,n);
-        *tabhex[iadr+5] = H2T_npy_point_index(i+1,j  ,k+1,n);
-        *tabhex[iadr+6] = H2T_npy_point_index(i+1,j+1,k+1,n);
-        *tabhex[iadr+7] = H2T_npy_point_index(i  ,j+1,k+1,n);
-
-        // Hexa references
-        int *tmp;
-        tmp = (int*)PyArray_GETPTR3(pValue,i,j,k);
-
-        *tabhex[iadr+7] = *tmp;
-        ++pos;
-      }
-    }
-  }
-  Py_DECREF(pValue);
-
-  mmgMesh->ne = 0;
-  mmgMesh->nenil = 0;
-  for (k=mmgMesh->nenil; k<mmgMesh->nemax-1; k++)
-    mmgMesh->tetra[k].v[3] = k+1;
-
-  return nbhex;
-
-} */
-
 
 int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   FILE*            inm;

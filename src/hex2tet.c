@@ -316,23 +316,11 @@ int main(int argc,char *argv[]) {
   ptr   = H2T_Get_filenameExt(mmgMesh->namein);
   fmtin = H2T_Get_format(ptr,MMG5_FMT_MeditASCII);
 
-  int **hexa2;
   switch ( fmtin ) {
 
     case ( H2T_FMT_Numpy ):
-      //nbhex = H2T_loadNpyArray(mmgMesh,hexa2,mmgMesh->namein);
-      nbhex = H2T_loadnpy(mmgMesh,hexa2,mmgMesh->namein);
 
-      printf("nbpt / nbhex %lld %d\n",mmgMesh->np,nbhex);
-      for (int i=1; i<=mmgMesh->np; ++i) {
-        printf("%f %f %f %lld\n",mmgMesh->point[i].c[0],mmgMesh->point[i].c[1],mmgMesh->point[i].c[2],mmgMesh->point[i].ref);
-      }
-
-      for (int i=1; i<=nbhex; ++i) {
-        printf("%d %d %d %d %d %d %d %d %d\n",*hexa2[0],*hexa2[1],*hexa2[2],*hexa2[3],
-               *hexa2[4],*hexa2[5],*hexa2[6],*hexa2[7],*hexa2[8]);
-      }
-
+      nbhex = H2T_loadNpy(mmgMesh,&hexa,mmgMesh->namein);
       break;
 
     case ( H2T_FMT_MeditASCII ):
@@ -357,6 +345,7 @@ int main(int argc,char *argv[]) {
       fclose(inm);
 
       nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+
       break;
 
     default:

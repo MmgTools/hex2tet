@@ -89,9 +89,26 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  */
 int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename);
 
-//int H2T_loadNpyArray(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
-
-int H2T_loadnpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
+/**
+ * \param mmgMesh pointer toward the mesh.
+ * \param tabhex pointer towards array of hexa.
+ * \param filename name of input file.
+ *
+ * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
+ * fail. If successful, number of read hexahedra.
+ *
+ * Read mesh data from .npy file
+ *
+ * * \remark Fortran interface:
+ * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,nbhex,retval)\n
+ * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
+ * >     INTEGER, DIMENSION(*)             :: tabhex\n
+ * >     INTEGER, INTENT(IN)               :: nbhex\n
+ * >     INTEGER, INTENT(OUT)              :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+int H2T_loadNpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
 
 /**
  * \param starter dummy argument used to initialize the variadic argument
