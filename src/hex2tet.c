@@ -337,7 +337,7 @@ int main(int argc,char *argv[]) {
         if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
           fscanf(inm,"%d",&nbhex);
           fprintf(stdout,"  READING %d HEXA\n",nbhex);
-          hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
+          H2T_SAFE_CALLOC(hexa,9*(nbhex+1),int,return 0);
           assert(hexa);
           break;
         }
@@ -363,7 +363,7 @@ int main(int argc,char *argv[]) {
   MMG3D_saveMesh(mmgMesh,mmgMesh->nameout);
 
   /** free structures */
-  free(hexa);
+  H2T_SAFE_FREE(hexa);
 
   MMG3D_Free_all(MMG5_ARG_start,
                  MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,

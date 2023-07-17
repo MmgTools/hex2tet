@@ -25,9 +25,8 @@ int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   FILE* inm;
   unsigned char buffer = 0x00;
   char* str = NULL;
-  int pos1, pos2, dim = 0, nm, t[3];
+  int pos1, pos2, dim = 0, t[3];
   MMG5_int np, nhex, ne, i, j, k, ref, pos;
-  int* dummy;
 
   /* Input data and creation of the hexa array */
   if( !(inm = fopen(mmgMesh->namein,"rb")) ) {
@@ -52,11 +51,11 @@ int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
    
     pos2 = ftell(inm);
     
-    str = malloc(sizeof(char)*(pos2-pos1-1));   
+    H2T_SAFE_CALLOC(str,pos2-pos1-1,char,return 0);
     fseek(inm, pos1, 0);
-    nm = fread(str, 1, pos2-pos1-1, inm);   
+    fread(str, 1, pos2-pos1-1, inm);
     sscanf(str, "%i", &t[dim]);
-    free(str);
+    H2T_SAFE_FREE(str);
     fread(&buffer,sizeof(buffer),1,inm);
     dim += 1;
   }
@@ -83,7 +82,7 @@ int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
     return -1;
   }
 
-  *tabhex = (int*)malloc(9*(nhex+1)*sizeof(MMG5_int));
+  H2T_SAFE_CALLOC(*tabhex,9*(nhex+1),int,return 0);
 
   /* Point coordinates from grid indices */
   ref = 0;
