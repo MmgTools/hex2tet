@@ -131,7 +131,7 @@ int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   return nhex;
 }
 
-int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
+int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,int nbhex,char *filename) {
   FILE*            inm;
   char             data[128],chaine[128];
   double           x,y,z;
@@ -180,6 +180,9 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   if ( H2T_Set_meshSize(mmgMesh,np,nbhex,0,na) != 1 ) {
     return -1;
   }
+  //H2T_SAFE_CALLOC(*tabhex,9*(nbhex+1),int,return 0);
+  *tabhex = (int*) malloc(9*(nbhex+1)*sizeof(int));
+
 
   rewind(inm);
   fseek(inm,posnp,SEEK_SET);
@@ -195,9 +198,9 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
   fprintf(stdout,"  READING %d HEXA\n",nhex);
   for (k=1; k<=nhex; k++) {
     iadr = 9*k;
-    fscanf(inm,"%d %d %d %d %d %d %d %d %d",&tabhex[iadr+0],&tabhex[iadr+1]
-	   ,&tabhex[iadr+2],&tabhex[iadr+3],&tabhex[iadr+4],
-	   &tabhex[iadr+5],&tabhex[iadr+6],&tabhex[iadr+7],&tabhex[iadr+8]);
+    fscanf(inm,"%d %d %d %d %d %d %d %d %d",&(*tabhex)[iadr+0],&(*tabhex)[iadr+1]
+	   ,&(*tabhex)[iadr+2],&(*tabhex)[iadr+3],&(*tabhex)[iadr+4],
+	   &(*tabhex)[iadr+5],&(*tabhex)[iadr+6],&(*tabhex)[iadr+7],&(*tabhex)[iadr+8]);
   }
 
   if(na) {

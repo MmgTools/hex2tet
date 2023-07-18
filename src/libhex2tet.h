@@ -87,7 +87,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  * >   END SUBROUTINE\n
  *
  */
-int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename);
+int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,int nbhex,char *filename);
 
 /**
  * \param mmgMesh pointer toward the mesh.

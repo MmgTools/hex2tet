@@ -50,7 +50,7 @@ FORTRAN_NAME(H2T_LOADMESH,h2t_loadmesh,
               char* filename, int *strlen0,int *retval),
              (mesh,tabhex,nbhex,filename,strlen0,retval)) {
 
-  *retval = H2T_loadMesh(*mesh,tabhex,*nbhex,filename);
+  *retval = H2T_loadMesh(*mesh,&tabhex,*nbhex,filename);
   return;
 }
 

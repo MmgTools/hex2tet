@@ -344,7 +344,7 @@ int main(int argc,char *argv[]) {
       }
       fclose(inm);
 
-      nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+      nbhex = H2T_loadMesh(mmgMesh,&hexa,nbhex,mmgMesh->namein);
 
       break;
 
