@@ -325,27 +325,7 @@ int main(int argc,char *argv[]) {
 
     case ( H2T_FMT_MeditASCII ):
 
-      /* Input data and creation of the hexa array */
-      if( !(inm = fopen(mmgMesh->namein,"r")) ) {
-        fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
-        return 0;
-      }
-
-      nbhex = 0;
-      strcpy(chaine,"D");
-      while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
-        if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
-          fscanf(inm,"%d",&nbhex);
-          fprintf(stdout,"  READING %d HEXA\n",nbhex);
-          H2T_SAFE_CALLOC(hexa,9*(nbhex+1),int,return 0);
-          assert(hexa);
-          break;
-        }
-      }
-      fclose(inm);
-
-      nbhex = H2T_loadMesh(mmgMesh,&hexa,nbhex,mmgMesh->namein);
-
+      nbhex = H2T_loadMesh(mmgMesh,&hexa,mmgMesh->namein);
       break;
 
     default:
@@ -363,11 +343,11 @@ int main(int argc,char *argv[]) {
   MMG3D_saveMesh(mmgMesh,mmgMesh->nameout);
 
   /** free structures */
-  H2T_SAFE_FREE(hexa);
+  H2T_Free_all(MMG5_ARG_start,
+               MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
+               H2T_ARG_phexa,&hexa, 
+               MMG5_ARG_end);
 
-  MMG3D_Free_all(MMG5_ARG_start,
-                 MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
-                 MMG5_ARG_end);
 
   return ier;
 }

@@ -42,7 +42,15 @@ extern "C" {
  *
  */
 #define H2T_STRONGFAILURE 2
-
+/**
+ * \def H2T_ARG_hexa
+ *
+ * Pointer towards hexahedra array.
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_phexa  11
 /**
  * \param mmgMesh mesh structure with only vertices.
  * \param hexa tab of hexahedra (size 9*(nbhexa+1) : 8 vertices per hexa + one ref).
@@ -70,7 +78,6 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
 /**
  * \param mmgMesh pointer toward the mesh.
  * \param tabhex array of hexa.
- * \param nbhex number of hexa.
  * \param filname name of input file.
  *
  * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
@@ -81,13 +88,12 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  * * \remark Fortran interface:
  * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,nbhex,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER, DIMENSION(*)             :: tabhex\n
- * >     INTEGER, INTENT(IN)               :: nbhex\n
+ * >     INTEGER(MMG5F_INT), DIMENSION(*)  :: tabhex\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n
  *
  */
-int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,int nbhex,char *filename);
+int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
 
 /**
  * \param mmgMesh pointer toward the mesh.
@@ -100,10 +106,10 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,int nbhex,char *filename);
  * Read mesh data from .npy file
  *
  * * \remark Fortran interface:
- * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,nbhex,retval)\n
+ * >   SUBROUTINE H2T_LOADNPY(mmgMesh,tabhex,filename,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER, DIMENSION(*)             :: tabhex\n
- * >     INTEGER, INTENT(IN)               :: nbhex\n
+ * >     INTEGER(MMG5F_INT), DIMENSION(*)  :: tabhex\n
+ * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n
  *
@@ -202,6 +208,25 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
    */
   int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1,
 		   MMG5_int ref, MMG5_int pos);
+
+/**
+ * \param starter dummy argument used to initialize the variadic argument
+ * list.
+ * \param ... variadic arguments that depend to the library function that you
+ * have call.
+ *
+ * \return 1 if success, 0 if fail
+ *
+ * Deallocations before return.
+ *
+ * \remark we pass the structures by reference in order to have argument
+ * compatibility between the library call from a Fortran code and a C code.
+ *
+ * \remark no Fortran interface to allow variadic args.
+ *
+ */
+int H2T_Free_all(const int starter,...);
+
 
 #ifdef __cplusplus
 }

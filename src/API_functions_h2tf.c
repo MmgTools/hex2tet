@@ -32,6 +32,25 @@ FORTRAN_VARIADIC ( H2T_INIT_MESH, h2t_init_mesh,
   )
 
 /**
+ * See \ref H2T_Free_all function in libhex2tet.h file.
+ */
+FORTRAN_VARIADIC ( H2T_FREE_ALL, h2t_free_all,
+                   (const int starter, ... ),
+                   va_list argptr;
+                   int     ier;
+
+                   va_start(argptr, starter);
+
+                   ier = H2T_Free_all_var(argptr);
+
+                   va_end(argptr);
+
+                   if ( !ier ) exit(EXIT_FAILURE);
+
+                   return;
+  )
+
+/**
  * See \ref H2T_Set_meshSize function in \ref libhex2tet.h file.
  */
 FORTRAN_NAME(H2T_SET_MESHSIZE,h2t_set_meshsize,
@@ -46,11 +65,23 @@ FORTRAN_NAME(H2T_SET_MESHSIZE,h2t_set_meshsize,
  * See \ref H2T_loadMesh function in \ref libhex2tet.h file.
  */
 FORTRAN_NAME(H2T_LOADMESH,h2t_loadmesh,
-             (MMG5_pMesh *mesh, int *tabhex, int *nbhex,
+             (MMG5_pMesh *mesh, int **tabhex,
               char* filename, int *strlen0,int *retval),
-             (mesh,tabhex,nbhex,filename,strlen0,retval)) {
+             (mesh,tabhex,filename,strlen0,retval)) {
 
-  *retval = H2T_loadMesh(*mesh,&tabhex,*nbhex,filename);
+  *retval = H2T_loadMesh(*mesh,tabhex,filename);
+  return;
+}
+
+/**
+ * See \ref H2T_loadNpy function in \ref libhex2tet.h file.
+ */
+FORTRAN_NAME(H2T_LOADNPY,h2t_loadnpy,
+             (MMG5_pMesh *mesh, int **tabhex,
+              char* filename, int *retval),
+             (mesh,tabhex,filename, retval)) {
+
+  *retval = H2T_loadNpy(*mesh,tabhex,filename);
   return;
 }
 

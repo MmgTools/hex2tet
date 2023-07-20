@@ -130,3 +130,4 @@ int    H2T_edgePoint(pHedge ,int ,int );
 int    H2T_cuthex(MMG5_pMesh ,pHedge ,int* ,MMG5_int* ,int ) ;
 
 int    _H2T_Init_mesh_var(va_list argptr);
+int    H2T_Free_all_var(va_list argptr);
