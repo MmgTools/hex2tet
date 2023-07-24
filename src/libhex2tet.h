@@ -227,8 +227,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
  * and reference \a ref at position \a pos in hexahedra table.
  *
  * \remark Fortran interface:
- * >   SUBROUTINE H2T_SET_HEXAHEDRON(hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,&
- * >                                 retval)\n
+ * >   SUBROUTINE H2T_SET_HEXAHEDRON(hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,retval)\n
  * >     INTEGER, DIMENSION(:), INTENT(INOUT) :: hexTab\n
  * >     INTEGER, INTENT(IN)                  :: i0,i1,i2,i3,i4,i5,i6,i7\n
  * >     INTEGER, INTENT(IN)                  :: ref,pos\n
