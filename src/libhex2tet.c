@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa) {
   Hedge             hed2;
   int               norient;
   MMG5_int          *adjahex,k,ier;
@@ -27,7 +27,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
   }
 
   /* chk orientation */
-  norient = H2T_chkorient(mmgMesh,hexa,nbhexa);
+  norient = H2T_chkorient(mmgMesh,*hexa,nbhexa);
   if ( norient )
     fprintf(stdout,"\n  -- WARNING: %8d HEXA REORIENTED\n",norient);
 
@@ -36,7 +36,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
   adjahex = (MMG5_int*)calloc(6*nbhexa+7,sizeof(long long));
   assert(adjahex);
 
-  if(!H2T_hashHexa(hexa,adjahex,nbhexa)) return H2T_STRONGFAILURE;
+  if(!H2T_hashHexa(*hexa,adjahex,nbhexa)) return H2T_STRONGFAILURE;
 
   /* cut hexa into tet */
   hed2.size  = 6*nbhexa;
@@ -58,7 +58,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
     return H2T_STRONGFAILURE;
   }
 
-  ier = H2T_cuthex(mmgMesh,&hed2,hexa,adjahex,nbhexa);
+  ier = H2T_cuthex(mmgMesh,&hed2,*hexa,adjahex,nbhexa);
 
   if ( !ier )
     ier = H2T_STRONGFAILURE;

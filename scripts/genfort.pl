@@ -48,6 +48,7 @@ my $fichier;
 my $format = "#define %-30s %d";
 my $formatbyval = "#define %-30s \%val(%d)";
 my $definebyval = "#define MMG5_ARG_%-30s \%val(%d)\n";
+my $definebyval_h2t = "#define H2T_ARG_%-30s \%val(%d)\n";
 my %opts;
 
 ###############################################################################
@@ -202,6 +203,11 @@ sub Convert {
                     $chaine = sprintf($definebyval,$1,$2);
                     printTab($chaine,1,0 );
                 }
+                elsif ($line =~ /\#define H2T_ARG_(\w*)\s+(.*)/)
+                {
+                    $chaine = sprintf($definebyval_h2t,$1,$2);
+                    printTab($chaine,1,0 );
+                }                
                 elsif ($line =~ /\#define/)
                 {
                     printTab($line,1,0 );

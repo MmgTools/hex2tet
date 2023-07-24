@@ -20,13 +20,13 @@ int H2T_npy_point_index(int i,int j,int k, int *n) {
   return n[1]*n[2]*i + n[2]*j + k + 1;
 }
 
-int  H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
+int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   FILE* inm;
   unsigned char buffer = 0x00;
   char* str = NULL;
-  int pos1, pos2, dim = 0, t[3];
-  MMG5_int np, nhex, ne, i, j, k, ref, pos;
+  int pos1, pos2, dim = 0, t[3], nhex;
+  MMG5_int np, ne, i, j, k, ref, pos;
 
   /* Input data and creation of the hexa array */
   if( !(inm = fopen(mmgMesh->namein,"rb")) ) {

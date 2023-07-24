@@ -65,7 +65,7 @@ extern "C" {
  * \remark Fortran interface:
  * >   SUBROUTINE H2T_LIBHEX2TET(mmgMesh,hexa,nbHexa,filename,strlen0,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER, DIMENSION(*), INTENT(IN) :: hexa\n
+ * >     MMG5_DATA_PTR_T                   :: hexa\n
  * >     INTEGER, INTENT(IN)               :: nbHexa\n
  * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
  * >     INTEGER, INTENT(IN)               :: strlen0\n
@@ -73,7 +73,7 @@ extern "C" {
  * >   END SUBROUTINE\n
  *
  */
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa);
 
 /**
  * \param mmgMesh pointer toward the mesh.
@@ -86,9 +86,9 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  * Read mesh data.
  *
  * * \remark Fortran interface:
- * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,nbhex,retval)\n
+ * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER(MMG5F_INT), DIMENSION(*)  :: tabhex\n
+ * >     MMG5_DATA_PTR_T                   :: tabhex\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n
  *
@@ -108,7 +108,7 @@ int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
  * * \remark Fortran interface:
  * >   SUBROUTINE H2T_LOADNPY(mmgMesh,tabhex,filename,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER(MMG5F_INT), DIMENSION(*)  :: tabhex\n
+ * >     MMG5_DATA_PTR_T                   :: tabhex\n
  * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n

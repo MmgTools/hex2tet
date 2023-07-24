@@ -338,7 +338,7 @@ int main(int argc,char *argv[]) {
   }
 
   /** call hex2tet library */
-  ier = H2T_libhex2tet(mmgMesh,hexa,nbhex);
+  ier = H2T_libhex2tet(mmgMesh,&hexa,nbhex);
 
   MMG3D_saveMesh(mmgMesh,mmgMesh->nameout);
 
