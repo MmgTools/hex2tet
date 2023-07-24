@@ -116,33 +116,30 @@ int _H2T_Init_mesh_var(va_list argptr) {
   return ier;
 }
 
- int  H2T_Set_meshSize(MMG5_pMesh mesh,int np,int nhexa,int nquad,int na) {
-   int ne,k;
+int  H2T_Set_meshSize(MMG5_pMesh mesh,int np,int nhexa,int nquad,int na) {
+  int ne,k;
 
-   ne = 6*nhexa;
+  ne = 6*nhexa;
 
-   if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 0, 0, na) != 1)
-     return 0;
+  /* in the output there will be 2*nquad triangles */
+  if(MMG3D_Set_meshSize(mesh, np, 6*nhexa, 0, 2*nquad, nquad, na) != 1)
+    return 0;
 
-   if ( nquad ) {
-     printf("  ## Warning: %s: treatment of input quadrangles not yet implemented:\n"
-            "%d quadrangles ignored.\n",__func__,nquad);
-   }
 
-   /* Set all tetra as unused */
-   mesh->nenil = 1;
-   for ( k=mesh->nenil; k<mesh->nemax-1; k++)
-     mesh->tetra[k].v[3] = k+1;
+  /* Set all tetra as unused */
+  mesh->nenil = 1;
+  for ( k=mesh->nenil; k<mesh->nemax-1; k++)
+    mesh->tetra[k].v[3] = k+1;
 
-   return 1;
- }
+  return 1;
+}
 
-  int  H2T_Set_vertex(MMG5_pMesh mesh, double c0, double c1,
-                      double c2, int ref,int pos) {
+int  H2T_Set_vertex(MMG5_pMesh mesh, double c0, double c1,
+                    double c2, int ref,int pos) {
 
-    return MMG3D_Set_vertex(mesh,c0,c1,c2,ref,pos);
+  return MMG3D_Set_vertex(mesh,c0,c1,c2,ref,pos);
 
-  }
+}
 
 int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, MMG5_int ref, MMG5_int pos) {
 
@@ -228,4 +225,31 @@ int H2T_Free_all_var(va_list argptr)
   }
 
   return 1;
+}
+
+int  H2T_Set_hexahedron(int *hexTab,
+                        int i0,int i1,int i2,int i3,int i4,int i5,int i6,int i7,
+                        int ref,int pos) {
+  int hexTabPosition;
+
+  hexTabPosition = 9*pos;
+
+  hexTab[hexTabPosition]   = i0;
+  hexTab[hexTabPosition+1] = i1;
+  hexTab[hexTabPosition+2] = i2;
+  hexTab[hexTabPosition+3] = i3;
+  hexTab[hexTabPosition+4] = i4;
+  hexTab[hexTabPosition+5] = i5;
+  hexTab[hexTabPosition+6] = i6;
+  hexTab[hexTabPosition+7] = i7;
+  hexTab[hexTabPosition+8] = ref;
+
+  return 1;
+}
+
+int  H2T_Set_quadrilateral(MMG5_pMesh mesh,
+                           int i0,int i1,int i2,int i3,
+                           int ref,int pos) {
+
+  return MMG3D_Set_quadrilateral(mesh,i0,i1,i2,i3,ref,pos);
 }

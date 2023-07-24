@@ -110,6 +110,32 @@ FORTRAN_NAME(H2T_SET_EDGE,h2t_set_edge,
 }
 
 /**
+ * See \ref H2T_Set_hexahedron function in \ref libhex2tet.h file.
+ */
+FORTRAN_NAME(H2T_SET_HEXAHEDRON,h2t_set_hexahedron,
+             (int *hexTab,
+              int* i0,int* i1,int* i2,int* i3,int* i4,int* i5,int* i6,int* i7,
+              int* ref,int* pos,int* retval),
+             (hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,retval)) {
+
+  *retval = H2T_Set_hexahedron(hexTab,*i0,*i1,*i2,*i3,*i4,*i5,*i6,*i7,*ref,*pos);
+  return;
+}
+
+/**
+ * See \ref H2T_Set_quadrilateral function in \ref libhex2tet.h file.
+ */
+FORTRAN_NAME(H2T_SET_QUADRILATERAL,h2t_set_quadrilateral,
+             (MMG5_pMesh *mesh,
+              int* i0,int* i1,int* i2,int* i3,
+              int* ref,int* pos,int* retval),
+             (mesh,i0,i1,i2,i3,ref,pos,retval)) {
+
+  *retval = H2T_Set_quadrilateral(*mesh,*i0,*i1,*i2,*i3,*ref,*pos);
+  return;
+}
+
+/**
  * See \ref H2T_libhex2tet function in \ref libhex2tet.h file.
  */
 FORTRAN_NAME(H2T_LIBHEX2TET,h2t_libhex2tet,
