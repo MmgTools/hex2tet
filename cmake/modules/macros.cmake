@@ -32,7 +32,7 @@ ENDMACRO ( )
 #####         Copy an automatically generated header file to another place
 #####
 ###############################################################################
-MACRO ( COPY_FORTRAN_HEADER
+MACRO ( COPY_HEADER
     in_dir in_file out_dir out_file
     file_dependencies
     target_name
@@ -60,20 +60,29 @@ ENDMACRO ( )
 #####         and create the associated target
 #####
 ###############################################################################
-MACRO ( COPY_FORTRAN_HEADER_AND_CREATE_TARGET
-    binary_dir include_dir target_identifier )
+MACRO ( COPY_HEADERS_AND_CREATE_TARGET
+    source_dir binary_dir include_dir target_identifier )
 
-  COPY_FORTRAN_HEADER (
-    ${binary_dir}
-    lib${target_identifier}f.h ${include_dir}
-    lib${target_identifier}f.h
+  ADD_CUSTOM_TARGET(${target_identifier}_header ALL
+    DEPENDS
+    ${source_dir}/lib${target_identifier}.h )
+
+  COPY_HEADER (
+    ${source_dir} lib${target_identifier}.h
+    ${include_dir} lib${target_identifier}.h
+    ${target_identifier}_header copy_lib${target_identifier}
+    )
+
+  COPY_HEADER (
+    ${binary_dir} lib${target_identifier}f.h
+    ${include_dir} lib${target_identifier}f.h
     ${target_identifier}_fortran_header copy_lib${target_identifier}f
     )
 
   ADD_CUSTOM_TARGET(copy_${target_identifier}_headers ALL
     DEPENDS
     copy_lib${target_identifier}f
-    ${include_dir}/lib${target_identifier}.h )
+    copy_lib${target_identifier} )
 
 
 ENDMACRO ( )

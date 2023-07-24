@@ -17,6 +17,7 @@
 
 int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa) {
   Hedge             hed2;
+  MMG5_Hash         hash;
   int               norient;
   MMG5_int          *adjahex,k,ier;
   
@@ -30,6 +31,9 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa) {
   norient = H2T_chkorient(mmgMesh,*hexa,nbhexa);
   if ( norient )
     fprintf(stdout,"\n  -- WARNING: %8d HEXA REORIENTED\n",norient);
+
+  /* hash boundary quadrilaterals */
+  if(!H2T_hashQuad(mmgMesh,&hash)) return H2T_STRONGFAILURE;
 
   /* hexa adjacency */
   adjahex = NULL;
@@ -64,6 +68,9 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa) {
     ier = H2T_STRONGFAILURE;
   else
     ier = H2T_SUCCESS;
+
+  /* Recover references from quads to tria */
+  if( !H2T_hashGetRef(mmgMesh,&hash) ) return H2T_STRONGFAILURE;
 
   free(adjahex);
   free(hed2.item);

@@ -48,6 +48,7 @@ int main ( int argc, char* argv[] ) {
   /** Step 1: MMG5 mesh allocation */
   int nbVertices = Width*Height*Depth;
   int nbHex = (Width - 1)    * (Height - 1) * (Depth-1);
+  int nbQuad = 2*(Width-1)*(Height-1)+2*(Height-1)*(Depth-1)+2*(Width-1)*(Depth-1);
 
   MMG3D_Init_mesh(MMG5_ARG_start,
                   MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
@@ -55,7 +56,7 @@ int main ( int argc, char* argv[] ) {
 
   /** Step 2: Set the mesh size by giving the number of vertices and
    * the number of hexa of the hexahedral mesh */
-  if ( H2T_Set_meshSize(mmgMesh, nbVertices, nbHex, 0, 0) != 1)
+  if ( H2T_Set_meshSize(mmgMesh, nbVertices, nbHex, nbQuad, 0) != 1)
     exit(EXIT_FAILURE);
 
   /** Step 3: Give the mesh vertices to Hex2tet (hexahedra vertices) */
@@ -91,7 +92,6 @@ int main ( int argc, char* argv[] ) {
     for ( int j=0; j<jmax-1; ++j ) {
       for ( int i=0; i<imax-1; ++i ) {
         int hexaNumber     = (k*(jmax-1)*(imax-1)) + (j*(imax-1)) + i + 1;
-        int hexTabPosition = 9 * hexaNumber;
         /* Hexahedra definition and storage
          * f = front b = back || u = up vs. d = down || l = left vs. r = right */
 
@@ -105,43 +105,169 @@ int main ( int argc, char* argv[] ) {
         bul = ((k+1) * imax * jmax) + ((j+1) * imax) + i + 1;
         bur = bul + 1;
 
-        hexTab[hexTabPosition]   = fdl;
-        hexTab[hexTabPosition+1] = fdr;
-        hexTab[hexTabPosition+2] = bdr;
-        hexTab[hexTabPosition+3] = bdl;
-        hexTab[hexTabPosition+4] = ful;
-        hexTab[hexTabPosition+5] = fur;
-        hexTab[hexTabPosition+6] = bur;
-        hexTab[hexTabPosition+7] = bul;
-        hexTab[hexTabPosition+8] = ref;
+        if( H2T_Set_hexahedron(hexTab,fdl,fdr,bdr,bdl,ful,fur,bur,bul,
+                               ref,hexaNumber) != 1 )
+          exit ( EXIT_FAILURE );
       }
     }
   }
 
 
-  /* Save he hexa mesh */
-  /* FILE* inm = fopen("hexa.mesh","w"); */
+  /** Set boundary quadrangles */
+  int quadNumber = 0;
 
-  /* fprintf(inm,"MeshVersionFormatted 2\n"); */
-  /* fprintf(inm,"\n\nDimension 3\n"); */
-  /* fprintf(inm,"\n\nVertices\n"); */
+  /* Lower face */
+  ref = 1;
+  int j = 0;
+  for ( int k=0; k<kmax-1; ++k ) {
+    for ( int i=0; i<imax-1; ++i ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
 
-  /* fprintf(inm,"%d\n",mmgMesh->np); */
+      int dl,dr,ul,ur;
+      dl = ((k+1) * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + 1;
+      ul = (k * imax * jmax) + (j * imax) + i + 1;
+      ur = ul + 1;
 
-  /* for (int k=1; k<=mmgMesh->np; k++) { */
-  /*   MMG5_pPoint ppt = &mmgMesh->point[k]; */
-  /*   fprintf(inm,"%.15lg %.15lg %.15lg %d\n",ppt->c[0],ppt->c[1],ppt->c[2],abs(ppt->ref)); */
-  /* } */
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
 
-  /* fprintf(inm,"\n\nHexahedra %d\n",nbHex); */
-  /* for (int k=1; k<=nbHex; k++) { */
-  /*   fprintf(inm,"%d %d %d %d %d %d %d %d %d\n",hexTab[9*k],hexTab[9*k+1],hexTab[9*k+2], */
-  /*           hexTab[9*k+3],hexTab[9*k+4],hexTab[9*k+5],hexTab[9*k+6],hexTab[9*k+7],hexTab[9*k+8] ); */
-  /* } */
+  /* Upper face */
+  ref = 5;
+  j = jmax-1;
+  for ( int k=0; k<kmax-1; ++k ) {
+    for ( int i=0; i<imax-1; ++i ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
 
-  /* fprintf(inm,"\n\nEnd\n"); */
+      int dl,dr,ul,ur;
+      dl = ((k+1) * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + 1;
+      ul = (k * imax * jmax) + (j * imax) + i + 1;
+      ur = ul + 1;
 
-  /* fclose(inm); */
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
+
+  /* Front face */
+  ref = 2;
+  int k = 0;
+  for ( int j=0; j<jmax-1; ++j ) {
+    for ( int i=0; i<imax-1; ++i ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
+
+      int dl,dr,ul,ur;
+      dl = (k * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + 1;
+      ul = (k * imax * jmax) + ((j+1) * imax) + i + 1;
+      ur = ul + 1;
+
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
+
+  /* Back face */
+  ref = 4;
+  k = kmax-1;
+  for ( int j=0; j<jmax-1; ++j ) {
+    for ( int i=0; i<imax-1; ++i ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
+
+      int dl,dr,ul,ur;
+      dl = (k * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + 1;
+      ul = (k * imax * jmax) + ((j+1) * imax) + i + 1;
+      ur = ul + 1;
+
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
+
+  /* Right face */
+  ref = 3;
+  int i = imax-1;
+  for ( int k=0; k<kmax-1; ++k ) {
+    for ( int j=0; j<jmax-1; ++j ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
+
+      int dl,dr,ul,ur;
+      dl = (k * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + imax*jmax;
+      ul = (k * imax * jmax) + ((j+1) * imax) + i + 1;
+      ur = ul + imax*jmax;
+
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
+
+  /* Left face */
+  ref = 5;
+  i = 0;
+  for ( int k=0; k<kmax-1; ++k ) {
+    for ( int j=0; j<jmax-1; ++j ) {
+      ++quadNumber;
+      /* Quadrilateral definition and storage
+       * u = up vs. d = down || l = left vs. r = right */
+
+      int dl,dr,ul,ur;
+      dl = (k * imax * jmax) + (j * imax) + i + 1;
+      dr = dl + imax*jmax;
+      ul = (k * imax * jmax) + ((j+1) * imax) + i + 1;
+      ur = ul + imax*jmax;
+
+      if( H2T_Set_quadrilateral(mmgMesh,dl,dr,ur,ul,ref,quadNumber) != 1 )
+        exit ( EXIT_FAILURE );
+    }
+  }
+  assert(quadNumber == mmgMesh->nquad);
+
+
+//  /* Save he hexa mesh */
+//  FILE* inm = fopen("hexa.mesh","w");
+//
+//  fprintf(inm,"MeshVersionFormatted 2\n");
+//  fprintf(inm,"\n\nDimension 3\n");
+//  fprintf(inm,"\n\nVertices\n");
+//
+//  fprintf(inm,"%d\n",mmgMesh->np);
+//
+//  for (int k=1; k<=mmgMesh->np; k++) {
+//    MMG5_pPoint ppt = &mmgMesh->point[k];
+//    fprintf(inm,"%.15lg %.15lg %.15lg %d\n",ppt->c[0],ppt->c[1],ppt->c[2],abs(ppt->ref));
+//  }
+//
+//  fprintf(inm,"\n\nHexahedra %d\n",nbHex);
+//  for (int k=1; k<=nbHex; k++) {
+//    fprintf(inm,"%d %d %d %d %d %d %d %d %d\n",hexTab[9*k],hexTab[9*k+1],hexTab[9*k+2],
+//            hexTab[9*k+3],hexTab[9*k+4],hexTab[9*k+5],hexTab[9*k+6],hexTab[9*k+7],hexTab[9*k+8] );
+//  }
+//
+//  fprintf(inm,"\n\nQuadrilaterals %d\n",quadNumber);
+//  for (int k=1; k<=mmgMesh->nquad; k++) {
+//    MMG5_pQuad pq = &mmgMesh->quadra[k];
+//    fprintf(inm,"%d %d %d %d %d\n",pq->v[0],pq->v[1],pq->v[2],pq->v[3],pq->ref);
+//  }
+//
+//
+//  fprintf(inm,"\n\nEnd\n");
+//
+//  fclose(inm);
 
   /** Step 5: converts hexa into a MMG5 tetrahedral mesh */
   ier = H2T_libhex2tet(mmgMesh,hexTab,nbHex);

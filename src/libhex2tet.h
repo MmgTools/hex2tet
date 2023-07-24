@@ -210,6 +210,61 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
 		   MMG5_int ref, MMG5_int pos);
 
 /**
+ * \param hexTab pointer toward the hexahedra table.
+ * \param i0 first hexahedron vertex.
+ * \param i1 second hexahedron vertex.
+ * \param i2 third hexahedron vertex.
+ * \param i3 fourth hexahedron vertex.
+ * \param i4 fifth hexahedron vertex.
+ * \param i5 sixth hexahedron vertex.
+ * \param i6 seventh hexahedron vertex.
+ * \param i7 heigth hexahedron vertex.
+ * \param ref hexahedron reference.
+ * \param pos position of the hexahedron in the mesh.
+ * \return 1.
+ *
+ * Set hexahedron with vertices \a i0,\a i1,\a i2,\a i3,\a i4,\a i5,\a i6,\a i7
+ * and reference \a ref at position \a pos in hexahedra table.
+ *
+ * \remark Fortran interface:
+ * >   SUBROUTINE H2T_SET_HEXAHEDRON(hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,&
+ * >                                 retval)\n
+ * >     INTEGER, DIMENSION(:), INTENT(INOUT) :: hexTab\n
+ * >     INTEGER, INTENT(IN)                  :: i0,i1,i2,i3,i4,i5,i6,i7\n
+ * >     INTEGER, INTENT(IN)                  :: ref,pos\n
+ * >     INTEGER, INTENT(OUT)                 :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+  int  H2T_Set_hexahedron(int *hexTab,int i0,int i1,int i2,int i3,int i4,int i5,
+                          int i6,int i7,int ref,int pos);
+
+/**
+ * \param mesh pointer toward the mesh structure.
+ * \param i0 first quadrilateral vertex.
+ * \param i1 second quadrilateral vertex.
+ * \param i2 third quadrilateral vertex.
+ * \param i3 fourth quadrilateral vertex.
+ * \param ref quadrilateral reference.
+ * \param pos position of the quadrilateral in the mesh.
+ * \return 1.
+ *
+ * Set quadrilateral with vertices \a i0,\a i1,\a i2,\a i3 and reference \a ref
+ * at position \a pos in quadrilaterals table.
+ *
+ * \remark Fortran interface:
+ * >   SUBROUTINE H2T_SET_QUADRILATERAL(mesh,i0,i1,i2,i3,ref,pos,retval)\n
+ * >     MMG5_DATA_PTR_T,INTENT(INOUT) :: mesh\n
+ * >     INTEGER, INTENT(IN)           :: i0,i1,i2,i3\n
+ * >     INTEGER, INTENT(IN)           :: ref,pos\n
+ * >     INTEGER, INTENT(OUT)          :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+  int  H2T_Set_quadrilateral(MMG5_pMesh mesh,int i0,int i1,int i2,int i3,int ref,
+                             int pos);
+
+/**
  * \param starter dummy argument used to initialize the variadic argument
  * list.
  * \param ... variadic arguments that depend to the library function that you
