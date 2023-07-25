@@ -50,7 +50,7 @@ extern "C" {
  * \remark we cannot use an enum because used in
  * variadic functions).
  */
-#define H2T_ARG_phexa  11
+#define H2T_ARG_phexa  (MMG5_ARG_end+1)
 /**
  * \param mmgMesh mesh structure with only vertices.
  * \param hexa tab of hexahedra (size 9*(nbhexa+1) : 8 vertices per hexa + one ref).
