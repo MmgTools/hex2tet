@@ -44,10 +44,13 @@ use Getopt::Std;
 my $real     = 0;
 my $int      = 0;
 my $fichier;
+my $fichier_mmg;
 #my $format = "MMG_INTEGER, PARAMETER :: %-30s = %d";
 my $format = "#define %-30s %d";
 my $formatbyval = "#define %-30s \%val(%d)";
 my $definebyval = "#define MMG5_ARG_%-30s \%val(%d)\n";
+my $definebyval_f = "#define MMG5_ARG_%s_F %s\n";
+my $definebyval_h2t = "#define H2T_ARG_%s \%val(MMG5_ARG_%s_F)\n";
 my %opts;
 
 ###############################################################################
@@ -132,6 +135,21 @@ sub Convert {
     my $interfaceprinted = 0;
     my $modulename;
 
+    open (APImmg, $fichier_mmg);
+
+    foreach my $line_mmg ( <APImmg> )
+    {
+        if ($line_mmg =~ /\#define MMG5_ARG_(\w*)\s+(.*)/)
+        {
+            $chaine = sprintf($definebyval_f,$1,$2);
+            printTab($chaine,1,0 );
+            $chaine = sprintf($definebyval_h2t,$1,$1);
+            printTab($chaine,1,0 );
+        }
+    }
+
+    close APImmg;
+
     open (APIc, $fichier);
 
     foreach my $line ( <APIc> )
@@ -202,6 +220,11 @@ sub Convert {
                     $chaine = sprintf($definebyval,$1,$2);
                     printTab($chaine,1,0 );
                 }
+                elsif ($line =~ /\#define H2T_ARG_(\w*)\s+(.*)/)
+                {
+                    $chaine = sprintf($definebyval_h2t,$1,$2);
+                    printTab($chaine,1,0 );
+                }                
                 elsif ($line =~ /\#define/)
                 {
                     printTab($line,1,0 );
@@ -361,7 +384,7 @@ sub Convert {
 }
 
 
-getopts("hf:r:i:",\%opts);
+getopts("hf:g:r:i:",\%opts);
 
 if ( defined $opts{r} ){
     $real = $opts{r};
@@ -372,6 +395,14 @@ if ( defined $opts{i} ){
 
 if ( defined $opts{f} ){
     $fichier = $opts{f};
+}
+else {
+    Usage();
+    exit;
+}
+
+if ( defined $opts{g} ){
+    $fichier_mmg = $opts{g};
 }
 else {
     Usage();

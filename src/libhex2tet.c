@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa) {
   Hedge             hed2;
   MMG5_Hash         hash;
   int               norient;
@@ -28,7 +28,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
   }
 
   /* chk orientation */
-  norient = H2T_chkorient(mmgMesh,hexa,nbhexa);
+  norient = H2T_chkorient(mmgMesh,*hexa,nbhexa);
   if ( norient )
     fprintf(stdout,"\n  -- WARNING: %8d HEXA REORIENTED\n",norient);
 
@@ -40,7 +40,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
   adjahex = (MMG5_int*)calloc(6*nbhexa+7,sizeof(long long));
   assert(adjahex);
 
-  if(!H2T_hashHexa(hexa,adjahex,nbhexa)) return H2T_STRONGFAILURE;
+  if(!H2T_hashHexa(*hexa,adjahex,nbhexa)) return H2T_STRONGFAILURE;
 
   /* cut hexa into tet */
   hed2.size  = 6*nbhexa;
@@ -56,12 +56,13 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa) {
 
   if ( 6*nbhexa >= mmgMesh->nemax ) {
     printf("\n  -- ERROR: Not enough memory to store the final mesh"
-           " (max number of tetra=%d while the number of hexa times 6 is %d.\n",
+           " (max number of tetra=%" MMG5_PRId " while the number of hexa times"
+           " 6 is % " MMG5_PRId ".\n",
            mmgMesh->nemax,nbhexa*6);
     return H2T_STRONGFAILURE;
   }
 
-  ier = H2T_cuthex(mmgMesh,&hed2,hexa,adjahex,nbhexa);
+  ier = H2T_cuthex(mmgMesh,&hed2,*hexa,adjahex,nbhexa);
 
   if ( !ier )
     ier = H2T_STRONGFAILURE;

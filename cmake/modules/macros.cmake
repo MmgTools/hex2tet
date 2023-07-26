@@ -5,13 +5,13 @@
 ###############################################################################
 
 MACRO ( GENERATE_FORTRAN_HEADER name
-    in_dir in_file out_dir out_file
+    in_dir in_file in_file_mmg out_dir out_file
     )
   # Wrap add_custom_command into add_custom target to remove dpendencies from
   # the custom command and thus allow parallel build.
   ADD_CUSTOM_COMMAND (
     OUTPUT ${out_dir}/${out_file}
-    COMMAND genheader ${out_dir}/${out_file} ${in_dir}/${in_file}
+    COMMAND genheader ${out_dir}/${out_file} ${in_dir}/${in_file} ${in_file_mmg}
     ${PROJECT_SOURCE_DIR}/scripts/genfort.pl
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS genheader ${in_dir}/${in_file}

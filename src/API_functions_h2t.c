@@ -147,6 +147,86 @@ int H2T_Set_edge(MMG5_pMesh mesh, MMG5_int v0, MMG5_int v1, MMG5_int ref, MMG5_i
 
 }
 
+int H2T_Free_all(const int starter,...) 
+{
+  va_list argptr;
+  int ier;
+
+  va_start(argptr, starter);
+
+  ier = H2T_Free_all_var(argptr);
+
+  va_end(argptr);
+
+  return ier;
+
+}
+
+int H2T_Free_all_var(va_list argptr) 
+{
+  MMG5_pMesh *mesh;
+  MMG5_pSol  *sol;
+  int        **hexa;
+  int        typArg, meshCount, hexaCount;
+
+  meshCount = hexaCount = 0;
+  mesh = NULL;
+  sol  = NULL;
+  hexa = NULL;
+
+  while ( (typArg = va_arg(argptr,int)) != MMG5_ARG_end )
+  {
+    switch ( typArg )
+    {
+    case(MMG5_ARG_ppMesh):
+      mesh = va_arg(argptr,MMG5_pMesh*);
+      ++meshCount;
+      break;
+    case(MMG5_ARG_ppMet):
+      sol = va_arg(argptr,MMG5_pSol*);
+      break;
+    case(H2T_ARG_phexa):
+      hexa = va_arg(argptr,int**);
+      ++hexaCount;
+      break;
+    default:
+      fprintf(stderr,"\n  ## Error: %s: H2T_Free_all:\n"
+              " unexpected argument type: %d\n",__func__,typArg);
+      fprintf(stderr," Argument type must be one of the following preprocessor"
+              " variable:"
+              " MMG5_ARG_ppMesh, MMG5_ARG_ppMet,"
+              " H2T_ARG_phexa\n");
+      return 0;
+    }
+  }
+
+  if ( meshCount !=1 ) {
+    fprintf(stderr,"\n  ## Error: %s: H2T_Free_all:\n"
+            " you need to provide your mesh structure"
+            " to allow to free the associated memory.\n",__func__);
+    return 0;
+  }
+
+  if ( hexaCount !=1 ) {
+    fprintf(stderr,"\n  ## Error: %s: H2T_Free_all:\n"
+            " you need to provide your hexahedra array"
+            " to allow to free the associated memory.\n",__func__);
+    return 0;
+  }
+
+  /* deallocate hexahedra array */
+  H2T_SAFE_FREE(*hexa);
+
+  /* deallocate mesh structure */
+  if ( !MMG3D_Free_all(MMG5_ARG_start,
+                 MMG5_ARG_ppMesh,mesh,MMG5_ARG_ppMet,sol,
+                 MMG5_ARG_end) ) {
+    return 0;
+  }
+
+  return 1;
+}
+
 int  H2T_Set_hexahedron(int *hexTab,
                         int i0,int i1,int i2,int i3,int i4,int i5,int i6,int i7,
                         int ref,int pos) {

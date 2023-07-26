@@ -17,7 +17,7 @@
 
 #define H2T_MAXTET_ERROR_MESSAGE(func,line,nemax,ncut,nhex) do          \
   {                                                                     \
-    fprintf(stdout,"%s:%d: max number of tet reached (%d). %d/%d hexa treated.\n", \
+    fprintf(stdout,"%s:%d: max number of tet reached (%" MMG5_PRId "). %d/%d hexa treated.\n", \
             (func),(line),(nemax),(ncut),(nhex));                       \
   } while(0)
 

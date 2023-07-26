@@ -105,18 +105,6 @@ ENDIF()
 
 ############################################################################
 #####
-#####         Fortran header: libmmgtypesf.h
-#####
-############################################################################
-ADD_EXECUTABLE(genheader ${PROJECT_SOURCE_DIR}/scripts/genheader.c)
-TARGET_LINK_LIBRARIES ( genheader ${LIBRARIES}  )
-GENERATE_FORTRAN_HEADER ( hex2tet
-  ${H2T_SOURCE_DIR} libhex2tet.h
-  ${H2T_BUILD_DIR} libhex2tetf.h
-  )
-
-############################################################################
-#####
 #####        MMG (for mesh data structure)
 #####
 ############################################################################
@@ -140,6 +128,18 @@ ELSE ( )
   SET( LIBRARIES ${MMG_LIBRARIES} ${LIBRARIES})
 
 ENDIF ( )
+
+############################################################################
+#####
+#####         Fortran header: libmmgtypesf.h
+#####
+############################################################################
+ADD_EXECUTABLE(genheader ${PROJECT_SOURCE_DIR}/scripts/genheader.c)
+TARGET_LINK_LIBRARIES ( genheader ${LIBRARIES}  )
+GENERATE_FORTRAN_HEADER ( hex2tet
+  ${H2T_SOURCE_DIR} libhex2tet.h ${MMG_INCLUDE_DIRS}/mmg/common/libmmgtypes.h
+  ${H2T_BUILD_DIR} libhex2tetf.h
+  )
 
 ############################################################################
 #####
