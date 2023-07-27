@@ -50,7 +50,7 @@ my $format = "#define %-30s %d";
 my $formatbyval = "#define %-30s \%val(%d)";
 my $definebyval = "#define MMG5_ARG_%-30s \%val(%d)\n";
 my $definebyval_f = "#define MMG5_ARG_%s_F %s\n";
-my $definebyval_h2t = "#define H2T_ARG_%s \%val(MMG5_ARG_%s_F)\n";
+my $definebyval_new = "#define H2T_ARG_%s \%val(%s)\n";
 my %opts;
 
 ###############################################################################
@@ -115,6 +115,66 @@ sub printTab # ($chaine, $tabcount, $comm)
     }
     print $chaine;
 }
+#
+# Function: printMmgHeader
+#
+# Prints lines from mmg c header file containing 
+# definition of MMG5_ARG_[.*] macros and defines 
+# corresponding wrappings H2T_ARG_[.*].
+#
+sub printMmgHeader {
+
+    my $chaine;
+    my $line_mmg;
+    my $line_mmg2;
+    my $start_comm;
+    my $pos_start;
+    my $pos_end; 
+    my $pos_tmp;
+
+    open (APImmg, $fichier_mmg);
+
+    foreach $line_mmg ( <APImmg> )
+    {
+        if ($line_mmg =~ /\#define MMG5_ARG_(\w*)\s+(.*)/)
+        {
+            $chaine = sprintf($definebyval_f,$1,$2);
+            printTab($chaine,1,0 );
+        }
+    }
+
+    close APImmg;
+}
+#
+# Function: printNewMacro
+#
+# Returns lines defining new macros of the form
+# H2T_ARG_[.*] converted into suitable Fortran format.
+#
+# Parameter:
+#   line   - Input string to convert
+#
+# Returns:
+#   chaine - String to print
+#
+sub printNewMacro {
+
+    my ($line) = @_;
+    my $chaine;
+
+    if ($line =~ /\#define H2T_ARG_(\w*)\s+(.*)/) {
+        my $name = $1;
+        my $val = $2;
+
+        if ($val =~ /MMG5_ARG_(\w*)/) {
+            $val =~ s/MMG5_ARG_(\w*)/MMG5_ARG_$1_F/g;
+        }
+
+        $chaine = sprintf($definebyval_new,$name,$val);
+    }
+
+    return $chaine;
+}
 
 #
 # Function: Convert
@@ -134,21 +194,7 @@ sub Convert {
     my $tabcount = 0;
     my $interfaceprinted = 0;
     my $modulename;
-
-    open (APImmg, $fichier_mmg);
-
-    foreach my $line_mmg ( <APImmg> )
-    {
-        if ($line_mmg =~ /\#define MMG5_ARG_(\w*)\s+(.*)/)
-        {
-            $chaine = sprintf($definebyval_f,$1,$2);
-            printTab($chaine,1,0 );
-            $chaine = sprintf($definebyval_h2t,$1,$1);
-            printTab($chaine,1,0 );
-        }
-    }
-
-    close APImmg;
+    my $mmg_header = 0;
 
     open (APIc, $fichier);
 
@@ -222,9 +268,14 @@ sub Convert {
                 }
                 elsif ($line =~ /\#define H2T_ARG_(\w*)\s+(.*)/)
                 {
-                    $chaine = sprintf($definebyval_h2t,$1,$2);
+                    if ($mmg_header == 0)
+                    {
+                        printMmgHeader();
+                        $mmg_header = 1;
+                    }
+                    $chaine = printNewMacro($line);
                     printTab($chaine,1,0 );
-                }                
+                }
                 elsif ($line =~ /\#define/)
                 {
                     printTab($line,1,0 );

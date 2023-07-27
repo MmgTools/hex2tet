@@ -50,6 +50,110 @@ extern "C" {
  * \remark we cannot use an enum because used in
  * variadic functions).
  */
+/**
+ * \def MMG5_ARG_start
+ *
+ * To begin a list of variadic arguments (mandatory first arg for all our
+ * variadic functions)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_start  1
+/**
+ * \def H2T_ARG_ppMesh
+ *
+ * Pointer toward a MMG5_pMesh structure (for structure allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppMesh 2
+/**
+ * \def H2T_ARG_ppLs
+ *
+ * Pointer toward a MMG5_pSol structure storing a level-set (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppLs   3
+/**
+ * \def H2T_ARG_ppMet
+ *
+ * Pointer toward a MMG5_pSol structure storing a metric (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppMet  4
+/**
+ * \def H2T_ARG_ppDisp
+ *
+ * Pointer toward a MMG5_pSol structure storing a displacement (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppDisp 5
+/**
+ * \def H2T_ARG_ppSols
+ *
+ * Pointer toward an array of MMG5_Sol structures storing a list of solutions
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppSols  6
+/**
+ * \def H2T_ARG_pMesh
+ *
+ * MMG5_pMesh structure
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pMesh  7
+/**
+ * \def H2T_ARG_pMet
+ *
+ * MMG5_pSol structure storing a metric field
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pMet   8
+/**
+ * \def H2T_ARG_pDisp
+ *
+ * MMG5_pSol structure storing a displacement field
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pDisp  9
+/**
+ * \def H2T_ARG_end
+ *
+ * To end a list of variadic argument (mandatory last argument for all our
+ * variadic functions)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_end    10
+/**
+ * \def H2T_ARG_phexa
+ *
+ * integer array storing list of hexahedra
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
 #define H2T_ARG_phexa  (MMG5_ARG_end+1)
 /**
  * \param mmgMesh mesh structure with only vertices.
