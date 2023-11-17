@@ -119,7 +119,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   }
 
   /* Edges */
-  ref = 2;
+  ref = 0;
   pos = 0;
   for (i=0;i<t[0]-1; ++i) {
     int p0, p1;
@@ -176,6 +176,11 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
     p0 = H2T_npy_point_index(t[0]-1,t[1]-1,k  ,t);
     p1 = H2T_npy_point_index(t[0]-1,t[1]-1,k+1,t);
     H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+  }
+
+  /* Ridges */
+  for (i=1;i<=ne;i++) {
+    MMG3D_Set_ridge(mmgMesh,i);
   }
 
   fclose(inm);
