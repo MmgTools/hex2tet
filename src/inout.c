@@ -122,60 +122,60 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   ref = 0;
   pos = 0;
   for (i=0;i<t[0]-1; ++i) {
-    int p0, p1;
-    p0 = H2T_npy_point_index(i  ,0     ,0  ,t);
-    p1 = H2T_npy_point_index(i+1,0     ,0  ,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    int np0, np1;
+    np0 = H2T_npy_point_index(i  ,0     ,0  ,t);
+    np1 = H2T_npy_point_index(i+1,0     ,0  ,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(i  ,t[1]-1,0  ,t);
-    p1 = H2T_npy_point_index(i+1,t[1]-1,0  ,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(i  ,t[1]-1,0  ,t);
+    np1 = H2T_npy_point_index(i+1,t[1]-1,0  ,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(i  ,0     ,t[2]-1,t);
-    p1 = H2T_npy_point_index(i+1,0     ,t[2]-1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(i  ,0     ,t[2]-1,t);
+    np1 = H2T_npy_point_index(i+1,0     ,t[2]-1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(i  ,t[1]-1,t[2]-1,t);
-    p1 = H2T_npy_point_index(i+1,t[1]-1,t[2]-1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(i  ,t[1]-1,t[2]-1,t);
+    np1 = H2T_npy_point_index(i+1,t[1]-1,t[2]-1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
   for (j=0;j<t[1]-1; ++j) {
-    int p0, p1;
-    p0 = H2T_npy_point_index(0  ,j  ,0  ,t);
-    p1 = H2T_npy_point_index(0  ,j+1,0  ,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    int np0, np1;
+    np0 = H2T_npy_point_index(0  ,j  ,0  ,t);
+    np1 = H2T_npy_point_index(0  ,j+1,0  ,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(t[0]-1,j  ,0  ,t);
-    p1 = H2T_npy_point_index(t[0]-1,j+1,0  ,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(t[0]-1,j  ,0  ,t);
+    np1 = H2T_npy_point_index(t[0]-1,j+1,0  ,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(0  ,j  ,t[2]-1,t);
-    p1 = H2T_npy_point_index(0  ,j+1,t[2]-1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(0  ,j  ,t[2]-1,t);
+    np1 = H2T_npy_point_index(0  ,j+1,t[2]-1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(t[0]-1,j  ,t[2]-1,t);
-    p1 = H2T_npy_point_index(t[0]-1,j+1,t[2]-1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(t[0]-1,j  ,t[2]-1,t);
+    np1 = H2T_npy_point_index(t[0]-1,j+1,t[2]-1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
   for (k=0;k<t[2]-1; ++k) {
-    int p0, p1;
-    p0 = H2T_npy_point_index(0  ,0  ,k  ,t);
-    p1 = H2T_npy_point_index(0  ,0  ,k+1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    int np0, np1;
+    np0 = H2T_npy_point_index(0  ,0  ,k  ,t);
+    np1 = H2T_npy_point_index(0  ,0  ,k+1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(t[0]-1,0  ,k  ,t);
-    p1 = H2T_npy_point_index(t[0]-1,0  ,k+1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(t[0]-1,0  ,k  ,t);
+    np1 = H2T_npy_point_index(t[0]-1,0  ,k+1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(0  ,t[1]-1,k  ,t);
-    p1 = H2T_npy_point_index(0  ,t[1]-1,k+1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(0  ,t[1]-1,k  ,t);
+    np1 = H2T_npy_point_index(0  ,t[1]-1,k+1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    p0 = H2T_npy_point_index(t[0]-1,t[1]-1,k  ,t);
-    p1 = H2T_npy_point_index(t[0]-1,t[1]-1,k+1,t);
-    H2T_Set_edge(mmgMesh,p0,p1,ref,++pos);
+    np0 = H2T_npy_point_index(t[0]-1,t[1]-1,k  ,t);
+    np1 = H2T_npy_point_index(t[0]-1,t[1]-1,k+1,t);
+    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
   /* Ridges */
