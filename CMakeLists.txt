@@ -230,7 +230,7 @@ FILE(
   )
 IF (NOT WIN32)
   FIND_LIBRARY(M_LIB m)
-  SET( LIBRARIES ${M_LIB} ${LIBRARIES})
+  SET( LIBRARIES ${LIBRARIES} ${M_LIB} )
 ENDIF()
 
 ############################################################################
