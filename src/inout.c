@@ -25,8 +25,8 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   FILE* inm;
   unsigned char buffer = 0x00;
   char* str = NULL;
-  int pos1, pos2, dim = 0, t[3], nhex;
-  MMG5_int np, ne, i, j, k, ref, pos;
+  int pos1, pos2, dim = 0, t[3];
+  MMG5_int nhex, np, ne, i, j, k, ref, pos;
 
   /* Input data and creation of the hexa array */
   if( !(inm = fopen(mmgMesh->namein,"rb")) ) {
@@ -84,6 +84,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   /* Point coordinates from grid indices */
   ref = 0;
   pos = 0;
+  fprintf(stdout,"  READING %" MMG5_PRId " VERTICES\n",np);
   for (i=0;i<t[0];i++) {
     for (j=0;j<t[1];j++) {
       for (k=0;k<t[2];k++) {
@@ -96,6 +97,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   /* Hexahedra */
   pos = 1;
+  fprintf(stdout,"  READING %" MMG5_PRId " HEXA\n",nhex);
   for ( i=0; i<t[0]-1; ++i ) {
     for ( j=0; j<t[1]-1; ++j ) {
       for ( k=0; k<t[2]-1; ++k ) {
@@ -121,6 +123,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   /* Edges */
   ref = 0;
   pos = 0;
+  fprintf(stdout,"  READING %" MMG5_PRId " EDGES\n",ne);
   for (i=0;i<t[0]-1; ++i) {
     int np0, np1;
     np0 = H2T_npy_point_index(i  ,0     ,0  ,t);
@@ -179,6 +182,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   }
 
   /* Ridges */
+  fprintf(stdout,"  READING %" MMG5_PRId " RIDGES\n",ne);
   for (i=1;i<=ne;i++) {
     MMG3D_Set_ridge(mmgMesh,i);
   }
