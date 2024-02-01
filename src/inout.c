@@ -16,8 +16,8 @@
 #include <math.h>
 
 static inline
-int H2T_npy_point_index(int i,int j,int k, int *n) {
-  return n[1]*n[2]*i + n[2]*j + k + 1;
+MMG5_int H2T_npy_point_index(int i,int j,int k, int *n) {
+  return (n[1]+1)*(n[2]+1)*i + (n[2]+1)*j + k + 1;
 }
 
 int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
@@ -71,9 +71,9 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
     fread(&buffer,sizeof buffer,1,inm);
   }
 
-  np   = t[0]*t[1]*t[2];
-  nhex = (t[0]-1)*(t[1]-1)*(t[2]-1);
-  ne   = 4 * ((t[0]-1)+(t[1]-1)+(t[2]-1));
+  np   = (t[0]+1)*(t[1]+1)*(t[2]+1);
+  nhex = t[0]*t[1]*t[2];
+  ne   = 4 * (t[0]+t[1]+t[2]);
 
   if ( H2T_Set_meshSize(mmgMesh,np,nhex,0,ne) != 1 ) {
     return -1;
@@ -85,9 +85,9 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   ref = 0;
   pos = 0;
   fprintf(stdout,"  READING %" MMG5_PRId " VERTICES\n",np);
-  for (i=0;i<t[0];i++) {
-    for (j=0;j<t[1];j++) {
-      for (k=0;k<t[2];k++) {
+  for (i=0;i<=t[0];i++) {
+    for (j=0;j<=t[1];j++) {
+      for (k=0;k<=t[2];k++) {
         if ( H2T_Set_vertex(mmgMesh,(double)i ,(double)j ,(double)k,ref,++pos) != 1 ) {
           return -1;
         }
@@ -98,10 +98,10 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   /* Hexahedra */
   pos = 1;
   fprintf(stdout,"  READING %" MMG5_PRId " HEXA\n",nhex);
-  for ( i=0; i<t[0]-1; ++i ) {
-    for ( j=0; j<t[1]-1; ++j ) {
-      for ( k=0; k<t[2]-1; ++k ) {
-        int iadr = 9*pos;
+  for ( i=0; i<t[0]; ++i ) {
+    for ( j=0; j<t[1]; ++j ) {
+      for ( k=0; k<t[2]; ++k ) {
+        MMG5_int iadr = 9*pos;
 
         /* Hexa vertices */
         (*tabhex)[iadr+0] = H2T_npy_point_index(i  ,j  ,k  ,t);
@@ -114,7 +114,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
         (*tabhex)[iadr+7] = H2T_npy_point_index(i  ,j+1,k+1,t);
 
         /* Hexa references */
-        fread(&(*tabhex)[iadr+8],sizeof(int16_t),1,inm);
+        fread(&(*tabhex)[iadr+8],sizeof(uint32_t),1,inm);
         ++pos;
       }
     }
@@ -124,60 +124,62 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   ref = 0;
   pos = 0;
   fprintf(stdout,"  READING %" MMG5_PRId " EDGES\n",ne);
-  for (i=0;i<t[0]-1; ++i) {
-    int np0, np1;
+  for (i=0;i<t[0]; ++i) {
+    MMG5_int np0, np1;
     np0 = H2T_npy_point_index(i  ,0     ,0  ,t);
     np1 = H2T_npy_point_index(i+1,0     ,0  ,t);
+    if (H2T_Set_edge(mmgMesh,np0,np1,ref,++pos) != 1) {
+      return -1;
+    }
+
+    np0 = H2T_npy_point_index(i  ,t[1],0  ,t);
+    np1 = H2T_npy_point_index(i+1,t[1],0  ,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(i  ,t[1]-1,0  ,t);
-    np1 = H2T_npy_point_index(i+1,t[1]-1,0  ,t);
+    np0 = H2T_npy_point_index(i  ,0     ,t[2],t);
+    np1 = H2T_npy_point_index(i+1,0     ,t[2],t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(i  ,0     ,t[2]-1,t);
-    np1 = H2T_npy_point_index(i+1,0     ,t[2]-1,t);
-    H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
-
-    np0 = H2T_npy_point_index(i  ,t[1]-1,t[2]-1,t);
-    np1 = H2T_npy_point_index(i+1,t[1]-1,t[2]-1,t);
+    np0 = H2T_npy_point_index(i  ,t[1],t[2],t);
+    np1 = H2T_npy_point_index(i+1,t[1],t[2],t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
-  for (j=0;j<t[1]-1; ++j) {
-    int np0, np1;
+  for (j=0;j<t[1]; ++j) {
+    MMG5_int np0, np1;
     np0 = H2T_npy_point_index(0  ,j  ,0  ,t);
     np1 = H2T_npy_point_index(0  ,j+1,0  ,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(t[0]-1,j  ,0  ,t);
-    np1 = H2T_npy_point_index(t[0]-1,j+1,0  ,t);
+    np0 = H2T_npy_point_index(t[0],j  ,0  ,t);
+    np1 = H2T_npy_point_index(t[0],j+1,0  ,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(0  ,j  ,t[2]-1,t);
-    np1 = H2T_npy_point_index(0  ,j+1,t[2]-1,t);
+    np0 = H2T_npy_point_index(0  ,j  ,t[2],t);
+    np1 = H2T_npy_point_index(0  ,j+1,t[2],t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(t[0]-1,j  ,t[2]-1,t);
-    np1 = H2T_npy_point_index(t[0]-1,j+1,t[2]-1,t);
+    np0 = H2T_npy_point_index(t[0],j  ,t[2],t);
+    np1 = H2T_npy_point_index(t[0],j+1,t[2],t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
-  for (k=0;k<t[2]-1; ++k) {
-    int np0, np1;
+  for (k=0;k<t[2]; ++k) {
+    MMG5_int np0, np1;
     np0 = H2T_npy_point_index(0  ,0  ,k  ,t);
     np1 = H2T_npy_point_index(0  ,0  ,k+1,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(t[0]-1,0  ,k  ,t);
-    np1 = H2T_npy_point_index(t[0]-1,0  ,k+1,t);
+    np0 = H2T_npy_point_index(t[0],0  ,k  ,t);
+    np1 = H2T_npy_point_index(t[0],0  ,k+1,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(0  ,t[1]-1,k  ,t);
-    np1 = H2T_npy_point_index(0  ,t[1]-1,k+1,t);
+    np0 = H2T_npy_point_index(0  ,t[1],k  ,t);
+    np1 = H2T_npy_point_index(0  ,t[1],k+1,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
 
-    np0 = H2T_npy_point_index(t[0]-1,t[1]-1,k  ,t);
-    np1 = H2T_npy_point_index(t[0]-1,t[1]-1,k+1,t);
+    np0 = H2T_npy_point_index(t[0],t[1],k  ,t);
+    np1 = H2T_npy_point_index(t[0],t[1],k+1,t);
     H2T_Set_edge(mmgMesh,np0,np1,ref,++pos);
   }
 
