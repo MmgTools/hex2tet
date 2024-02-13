@@ -23,8 +23,9 @@ int H2T_npy_point_index(int i,int j,int k, int *n) {
 int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   FILE* inm;
-  unsigned char buffer = 0x00;
+  char buffer = 0x00;
   char* str = NULL;
+  unsigned long dataSize;
   int pos1, pos2, dim = 0, t[3], nhex;
   MMG5_int np, ne, i, j, k, ref, pos;
 
@@ -65,6 +66,15 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
                    " EXPECTED DIMENSION = 3. PROVIDED DIMENSION = %i \n",dim);
     return -1;
   }
+
+  /* Read data type*/
+  fseek(inm,0,0);
+  while (!(buffer == 0x3c)) {
+    fread(&buffer,sizeof(buffer),1,inm);
+  }
+  fread(&buffer,sizeof(buffer),1,inm);
+  fread(&buffer,sizeof(buffer),1,inm);
+  sscanf(&buffer, "%lu", &dataSize);
 
   /* Reach end of header */
   while (!(buffer == 0x0a)) {
@@ -112,7 +122,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
         (*tabhex)[iadr+7] = H2T_npy_point_index(i  ,j+1,k+1,t);
 
         /* Hexa references */
-        fread(&(*tabhex)[iadr+8],sizeof(int16_t),1,inm);
+        fread(&(*tabhex)[iadr+8],dataSize,1,inm);
         ++pos;
       }
     }
