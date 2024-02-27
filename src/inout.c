@@ -15,6 +15,14 @@
 #include <string.h>
 #include <math.h>
 
+#define H2T_HEX_LINE_FEED 0x0a
+#define H2T_HEX_APOS 0x27
+#define H2T_HEX_LEFTPAR 0x28
+#define H2T_HEX_RIGHTPAR 0x29
+#define H2T_HEX_COMMA 0x2c
+#define H2T_HEX_ZERO 0x30
+#define H2T_HEX_NINE 0x39
+
 static inline
 MMG5_int H2T_npy_point_index(int i,int j,int k, int *n) {
   return (n[1]+1)*(n[2]+1)*i + (n[2]+1)*j + k + 1;
@@ -23,9 +31,9 @@ MMG5_int H2T_npy_point_index(int i,int j,int k, int *n) {
 int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
 
   FILE* inm;
-  char buffer = 0x00;
+  char buffer = 0;
   char* str = NULL;
-  unsigned long dataSize;
+  size_t dataSize = 0;
   int pos1, pos2, dim = 0, t[3];
   MMG5_int nhex, np, ne, i, j, k, ref, pos;
 
@@ -38,18 +46,18 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
   fprintf(stdout,"  %%%% %s OPENED\n",mmgMesh->namein);
 
   /* Reach beginning of dimension specification in header */
-  while (!(buffer == 0x28)) {
+  while (!(buffer == H2T_HEX_LEFTPAR)) {
     fread(&buffer,sizeof(buffer),1,inm);
   }
   
   /* Read array sizes */
-  while (!(buffer == 0x29)) {
+  while (!(buffer == H2T_HEX_RIGHTPAR)) {
   
     pos1 = ftell(inm);
     do {
       fread(&buffer,sizeof(buffer),1,inm);
-    } while (!(buffer == 0x2c || buffer == 0x29));
-   
+    } while (!(buffer == H2T_HEX_COMMA || buffer == H2T_HEX_RIGHTPAR));
+
     pos2 = ftell(inm);
     
     H2T_SAFE_CALLOC(str,pos2-pos1-1,char,return 0);
@@ -67,17 +75,29 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
     return -1;
   }
 
-  /* Read data type*/
+  /* Read data type : look for key 'descr' in header dictionnary */
   fseek(inm,0,0);
-  while (!(buffer == 0x3c)) {
-    fread(&buffer,sizeof(buffer),1,inm);
+  H2T_SAFE_CALLOC(str,5,char,return 0);
+
+  while (dataSize == 0) {
+    while (!(buffer == H2T_HEX_APOS)) {
+      fread(&buffer,sizeof(buffer),1,inm);
+    }
+
+    fread(&str[i],sizeof(char),5,inm);
+    if (!strcmp(str,"descr")) {
+      /* read header until type-specifying integers are met */
+      while (!((buffer >= H2T_HEX_ZERO) && (buffer <= H2T_HEX_NINE))) {
+        fread(&buffer,sizeof(buffer),1,inm);
+      }
+      /* read data size */
+      sscanf(&buffer, "%lu", &dataSize);
+      H2T_SAFE_FREE(str);
+    }
   }
-  fread(&buffer,sizeof(buffer),1,inm);
-  fread(&buffer,sizeof(buffer),1,inm);
-  sscanf(&buffer, "%lu", &dataSize);
 
   /* Reach end of header */
-  while (!(buffer == 0x0a)) {
+  while (!(buffer == H2T_HEX_LINE_FEED)) {
     fread(&buffer,sizeof buffer,1,inm);
   }
 
