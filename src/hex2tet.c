@@ -21,6 +21,8 @@
 #include <float.h>
 #include <limits.h>
 
+#include <time.h>
+
 /**
  * \param *prog pointer toward the program name.
  *
@@ -290,6 +292,8 @@ int main(int argc,char *argv[]) {
   MMG5_pSol       mmgSol;
   char            chaine[128],*ptr;
   int             *hexa,nbhex,ier,fmtin;
+  clock_t         t_start, t_end, t_cur ;
+  float           tim;
 
   fprintf(stdout,"\n  -- H2T, Release %s (%s) \n",H2T_VER,H2T_REL);
   fprintf(stdout,"     %s\n",H2T_CPY);
@@ -299,6 +303,8 @@ int main(int argc,char *argv[]) {
   mmgMesh = NULL;
   mmgSol  = NULL;
   hexa    = NULL;
+
+  t_start = clock();
 
   MMG3D_Init_mesh(MMG5_ARG_start,
                   MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
@@ -337,17 +343,43 @@ int main(int argc,char *argv[]) {
     return H2T_STRONGFAILURE;
   }
 
+  t_cur = clock();
+  tim = (float)(t_cur-t_start)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim > 0 )
+    fprintf(stdout,"  -- INPUT DATA COMPLETED.     %fs\n",tim);
+
   /** call hex2tet library */
   ier = H2T_libhex2tet(mmgMesh,&hexa,nbhex);
 
+  t_end = clock();
+  tim = (float)(t_end-t_cur)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim >= 0 ) {
+    fprintf(stdout,"\n   LIBHEX2TET: ELAPSED TIME  %fs\n",tim);
+  }
+
+  t_cur = t_end;
   MMG3D_saveMesh(mmgMesh,mmgMesh->nameout);
+
+  t_end = clock();
+  tim = (float)(t_end-t_cur)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim > 0 )
+    fprintf(stdout,"  -- WRITING COMPLETED.     %fs\n",tim);
 
   /** free structures */
   H2T_Free_all(MMG5_ARG_start,
                MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
-               H2T_ARG_phexa,&hexa, 
+               H2T_ARG_phexa,&hexa,
                MMG5_ARG_end);
 
+  t_end = clock();
+  tim = (float)(t_end-t_start)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim >= 0 ) {
+    fprintf(stdout, "\n   END OF MODULE HEX2TET: TOTAL TIME  %fs\n", tim);
+  }
 
   return ier;
 }
