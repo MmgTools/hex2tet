@@ -368,18 +368,19 @@ int main(int argc,char *argv[]) {
   if ( mmgMesh->info.imprim > 0 )
     fprintf(stdout,"  -- WRITING COMPLETED.     %fs\n",tim);
 
-  /** free structures */
-  H2T_Free_all(MMG5_ARG_start,
-               MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
-               H2T_ARG_phexa,&hexa,
-               MMG5_ARG_end);
-
   t_end = clock();
   tim = (float)(t_end-t_start)/CLOCKS_PER_SEC;
 
   if ( mmgMesh->info.imprim >= 0 ) {
     fprintf(stdout, "\n   END OF MODULE HEX2TET: TOTAL TIME  %fs\n", tim);
   }
+
+  /** free structures */
+  H2T_Free_all(MMG5_ARG_start,
+               MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
+               H2T_ARG_phexa,&hexa,
+               MMG5_ARG_end);
+
 
   return ier;
 }
