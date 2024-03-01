@@ -84,7 +84,7 @@ int H2T_loadNpy(MMG5_pMesh mmgMesh, int** tabhex, char* filename) {
       fread(&buffer,sizeof(buffer),1,inm);
     }
 
-    fread(&str[i],sizeof(char),5,inm);
+    fread(str,sizeof(char),5,inm);
     if (!strcmp(str,"descr")) {
       /* read header until type-specifying integers are met */
       while (!((buffer >= H2T_HEX_ZERO) && (buffer <= H2T_HEX_NINE))) {
