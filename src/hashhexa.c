@@ -249,8 +249,8 @@ int H2T_hashQuad(MMG5_pMesh mesh,MMG5_Hash *hash) {
  */
 int H2T_hashGetRef(MMG5_pMesh mesh,MMG5_Hash *hash) {
   MMG5_pTetra pt;
-  MMG5_int         *adja;
-  int         ie,i,nt,ia,ib,ic,k,ref;
+  MMG5_int    *adja, ie;
+  int         i,nt,ia,ib,ic,k,ref;
 
   /* Create tetrahedra adjacency */
   if( !MMG3D_hashTetra(mesh,0) ) return 0;

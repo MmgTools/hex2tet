@@ -69,14 +69,15 @@ double H2T_quickvol(double *c1,double *c2,double *c3,double *c4) {
  *
  */
 int H2T_chkorient(MMG5_pMesh mmgMesh,int* hexa,int nhex) {
-  int     nbado,k,i,iadr,ph[8];
+  int     nbado,k,i,ph[8];
   double  volref,volhex;
+  MMG5_int iadr;
 
   nbado = 0;
   volref = 1;
 
   for (k=1; k<=nhex; k++) {
-    iadr = 9*k;
+    iadr = (MMG5_int)9*k;
     for(i=0 ; i<8 ; i++)
       ph[i] = hexa[iadr+i];
 

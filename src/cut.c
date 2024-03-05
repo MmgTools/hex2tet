@@ -260,11 +260,12 @@ int H2T_chkAdja(MMG5_pMesh mesh,int* listhexa,MMG5_int* adjahex,int nhex) {
  */
 int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nhex) {
   MMG5_pPoint    ppt;
-  int            i,ih,k,nu1,nu2,nu3,nu4,adj,icas0,icasopp,nncut;
+  int            i,ih,nu1,nu2,nu3,nu4,adj,icas0,icasopp,nncut;
   int            *list,*mark,p[8],ipil,icurc,iface,iadr;
   int            iel,ip,ph[8];
   double         c[3];
   int            ddebug,ncut;
+  MMG5_int k;
 
   if ( mesh->info.ddebug ) {
     int count = H2T_chkAdja(mesh,listhexa,adjahex,nhex);
