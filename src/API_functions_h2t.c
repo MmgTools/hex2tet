@@ -117,8 +117,8 @@ int _H2T_Init_mesh_var(va_list argptr) {
 }
 
 int  H2T_Set_meshSize(MMG5_pMesh mesh,int np,int nhexa,int nquad,int na) {
-  int ne,k;
-
+  int ne;
+  MMG5_int k;
   ne = 6*nhexa;
 
   /* in the output there will be 2*nquad triangles */
