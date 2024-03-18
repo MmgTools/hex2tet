@@ -548,7 +548,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
           break;
         case(4):
           if ( ddebug ) {
-            printf("at the beginning %d : %d %d %d %d %d %d %d %d\n",
+            printf("at the beginning %" MMG5_PRId" : %d %d %d %d %d %d %d %d\n",
                    k,ph[0],ph[1],ph[2],ph[3],ph[4],ph[5],ph[6],ph[7]);
           }
 
@@ -560,7 +560,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
             p[4] = ph[6]; p[5] = ph[7]; p[6] = ph[4]; p[7] = ph[5];
           }
           if ( ddebug ) {
-            printf("at the end %d : %d %d %d %d %d %d %d %d\n",
+            printf("at the end %" MMG5_PRId" : %d %d %d %d %d %d %d %d\n",
                    k,p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7]);
           }
           break;
@@ -601,7 +601,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
       list[ipil++] = adj;
 
       if ( mesh->info.ddebug )
-        printf("k=%d: stack append: hexa %d (iface %d) in %d -- through face %d\n",
+        printf("k=%" MMG5_PRId": stack append: hexa %d (iface %d) in %d -- through face %d\n",
                k,adj/6,adj%6,ipil-1,i);
     }
   }
