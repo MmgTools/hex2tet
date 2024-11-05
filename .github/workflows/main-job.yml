@@ -32,6 +32,7 @@ jobs:
         run : |
           git clone https://gitlab.inria.fr/scotch/scotch.git
           cmake -Sscotch -Bbuild_scotch -DINTSIZE=${{ matrix.int }} \
+          ${{ env.FORT_FLG }} \
           -DCMAKE_INSTALL_PREFIX=install_scotch -DBUILD_PTSCOTCH=OFF \
           -DBISON_EXECUTABLE=$BISON_PATH
           cmake --build build_scotch --target install
