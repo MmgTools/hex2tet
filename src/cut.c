@@ -17,7 +17,7 @@
 
 #define H2T_MAXTET_ERROR_MESSAGE(func,line,nemax,ncut,nhex) do          \
   {                                                                     \
-    fprintf(stdout,"%s:%d: max number of tet reached (%d). %d/%d hexa treated.\n", \
+    fprintf(stdout,"%s:%d: max number of tet reached (%" MMG5_PRId "). %d/%d hexa treated.\n", \
             (func),(line),(nemax),(ncut),(nhex));                       \
   } while(0)
 
@@ -260,11 +260,12 @@ int H2T_chkAdja(MMG5_pMesh mesh,int* listhexa,MMG5_int* adjahex,int nhex) {
  */
 int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nhex) {
   MMG5_pPoint    ppt;
-  int            i,ih,k,nu1,nu2,nu3,nu4,adj,icas0,icasopp,nncut;
+  int            i,ih,nu1,nu2,nu3,nu4,adj,icas0,icasopp,nncut;
   int            *list,*mark,p[8],ipil,icurc,iface,iadr;
   int            iel,ip,ph[8];
   double         c[3];
   int            ddebug,ncut;
+  MMG5_int k;
 
   if ( mesh->info.ddebug ) {
     int count = H2T_chkAdja(mesh,listhexa,adjahex,nhex);
@@ -547,7 +548,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
           break;
         case(4):
           if ( ddebug ) {
-            printf("at the beginning %d : %d %d %d %d %d %d %d %d\n",
+            printf("at the beginning %" MMG5_PRId" : %d %d %d %d %d %d %d %d\n",
                    k,ph[0],ph[1],ph[2],ph[3],ph[4],ph[5],ph[6],ph[7]);
           }
 
@@ -559,7 +560,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
             p[4] = ph[6]; p[5] = ph[7]; p[6] = ph[4]; p[7] = ph[5];
           }
           if ( ddebug ) {
-            printf("at the end %d : %d %d %d %d %d %d %d %d\n",
+            printf("at the end %" MMG5_PRId" : %d %d %d %d %d %d %d %d\n",
                    k,p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7]);
           }
           break;
@@ -600,7 +601,7 @@ int H2T_cuthex(MMG5_pMesh mesh,pHedge hed,int* listhexa,MMG5_int* adjahex,int nh
       list[ipil++] = adj;
 
       if ( mesh->info.ddebug )
-        printf("k=%d: stack append: hexa %d (iface %d) in %d -- through face %d\n",
+        printf("k=%" MMG5_PRId": stack append: hexa %d (iface %d) in %d -- through face %d\n",
                k,adj/6,adj%6,ipil-1,i);
     }
   }

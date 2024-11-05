@@ -52,20 +52,22 @@ int main (int argc, char ** argv)
 {
   char * header_f       = NULL;
   char * libh2t_h       = NULL;
+  char * libmmg_h       = NULL;
   char * genfort        = NULL;
   char * cmd            = NULL;
   FILE * file           = NULL;
 
-  if (argc != 4)
+  if (argc != 5)
     {
-      fprintf(stderr, "usage : %s headerNameFortran.h headerNameC.h"
+      fprintf(stderr, "usage : %s headerNameFortran.h headerNameC.h mmgHeaderNameC.h"
               " genfort.pl\n",argv[0]);
       return EXIT_FAILURE;
     }
 
   header_f       = argv[1];
   libh2t_h       = argv[2];
-  genfort        = argv[3];
+  libmmg_h       = argv[3];
+  genfort        = argv[4];
 
   /* Fortran header */
   file = fopen (header_f,"w");
@@ -98,8 +100,8 @@ int main (int argc, char ** argv)
                                     strlen(libh2t_h)+
                                     strlen(header_f)+128)*sizeof(char))))
     return EXIT_FAILURE;
-  sprintf(cmd, "perl %s -f %s >> %s;",
-          genfort, libh2t_h, header_f);
+  sprintf(cmd, "perl %s -f %s -g %s >> %s;",
+          genfort, libh2t_h, libmmg_h, header_f);
   fprintf(stdout, "%s\n", cmd);
   if (-1 == system(cmd))
     return EXIT_FAILURE;

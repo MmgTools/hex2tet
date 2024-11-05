@@ -13,133 +13,15 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <string.h>
 #include <ctype.h>
 #include <math.h>
 #include <float.h>
 #include <limits.h>
 
-/**
- * \param mmgMesh pointer toward the mesh.
- * \param tabhex array of hexa.
- * \param nbhex number of hexa.
- * \param filname name of input file.
- *
- * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
- * fail, 1 otherwise.
- *
- * Read mesh data.
- *
- * \warning todo: add the hexa to the MMG5_mesh structure and read it
- * in the MMG3D_loadmesh function
- *
- */
-
-int H2T_loadMesh(MMG5_pMesh mmgMesh,int* tabhex,int nbhex,char *filename) {
-  FILE*            inm;
-  char             data[128],chaine[128];
-  double           x,y,z;
-  int              dim,np,nhex,ref,k,iadr,na,nr;
-  long             posnp,posna,posnhex,posnr;
-  MMG5_int         v0, v1;
-
-  posnp = posna = posnhex = posnr = 0;
-  na = nr = 0;
-
-  strcpy(data,filename);
-  if( !(inm = fopen(data,"r")) ) {
-    fprintf(stderr,"  ** %s  NOT FOUND.\n",data);
-    return 0;
-  }
-  fprintf(stdout,"  %%%% %s OPENED\n",data);
-
-  strcpy(chaine,"D");
-
-  while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
-    if(!strncmp(chaine,"Dimension",strlen("Dimension"))) {
-      fscanf(inm,"%d",&dim);
-      if(dim!=3) {
-        fprintf(stdout,"BAD DIMENSION : %d\n",dim);
-        return -1;
-      }
-      continue;
-    } else if(!strncmp(chaine,"Vertices",strlen("Vertices"))) {
-      fscanf(inm,"%d",&np);
-      posnp = ftell(inm);
-      continue;
-    } else if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
-      fscanf(inm,"%d",&nhex);
-      posnhex = ftell(inm);
-      continue;
-    } else if(!strncmp(chaine,"Edges",strlen("Edges"))) {
-      fscanf(inm,"%d",&na);
-      posna = ftell(inm);
-      continue;
-    } else if(!strncmp(chaine,"Ridges",strlen("Ridges"))) {
-      fscanf(inm,"%d",&nr);
-      posnr = ftell(inm);
-      continue;
-    }
-  }
-
-  if ( H2T_Set_meshSize(mmgMesh,np,nbhex,0,na) != 1 ) {
-    return -1;
-  }
-
-  rewind(inm);
-  fseek(inm,posnp,SEEK_SET);
-  fprintf(stdout,"  READING %d VERTICES\n",np);
-  for (k=1; k<=np; k++) {
-    fscanf(inm,"%lf %lf %lf %d",&x,&y,&z,&ref);
-    if ( H2T_Set_vertex(mmgMesh,x  ,y  ,z  ,ref,  k) != 1 ) {
-      return -1;
-    }
-  }
-
-  fseek(inm,posnhex,SEEK_SET);
-  fprintf(stdout,"  READING %d HEXA\n",nhex);
-  for (k=1; k<=nhex; k++) {
-    iadr = 9*k;
-    fscanf(inm,"%d %d %d %d %d %d %d %d %d",&tabhex[iadr+0],&tabhex[iadr+1]
-	   ,&tabhex[iadr+2],&tabhex[iadr+3],&tabhex[iadr+4],
-	   &tabhex[iadr+5],&tabhex[iadr+6],&tabhex[iadr+7],&tabhex[iadr+8]);
-  }
-
-  if(na) {
-    fseek(inm,posna,SEEK_SET);
-    fprintf(stdout,"  READING %d EDGES\n",na);
-    for (k=1; k<=na; k++) {
-      fscanf(inm,"%" MMG5_PRId " %" MMG5_PRId " %d", &v0, &v1, &ref);
-      if ( H2T_Set_edge(mmgMesh, v0, v1, ref, k) != 1 ) {
-	return -1;
-      }
-    }
-  }
-
-  if(nr) {
-    fseek(inm,posnr,SEEK_SET);
-    fprintf(stdout,"  READING %d RIDGES\n",na);
-    for (k=1; k<=nr; k++) {
-      fscanf(inm,"%" MMG5_PRId, &v0);
-      if ( !MMG3D_Set_ridge(mmgMesh,v0) ) {
-	return -1;
-      }
-    }
-  }
-
-  fclose(inm);
-
-  mmgMesh->ne = 0;
-  mmgMesh->nenil = 0;
-  for (k=mmgMesh->nenil; k<mmgMesh->nemax-1; k++)
-    mmgMesh->tetra[k].v[3] = k+1;
-
-  return nhex;
-}
-
-
+#include <time.h>
 
 /**
  * \param *prog pointer toward the program name.
@@ -314,6 +196,87 @@ int H2T_parsar(int argc,char *argv[],MMG5_pMesh mesh,MMG5_pSol met) {
 }
 
 /**
+ * \param fmt file format.
+ *
+ * \return The name of the file format in a string.
+ *
+ * Print the name of the file format associated to \a fmt.
+ *
+ */
+static inline
+const char* H2T_Get_formatName(enum MMG5_Format fmt)
+{
+  switch (fmt)
+  {
+  case H2T_FMT_MeditASCII:
+    return "H2T_FMT_MeditASCII";
+    break;
+  case H2T_FMT_Numpy:
+    return "H2T_FMT_Numpy";
+    break;
+  default:
+    return "H2T_Unknown";
+  }
+}
+
+/**
+ * \param filename string containing a filename
+ *
+ * \return pointer toward the filename extension or toward the end of the string
+ * if no extension have been founded
+ *
+ * Get the extension of the filename string. Do not consider '.o' as an extension.
+ *
+ * \warning copy past from Mmg
+ */
+static inline
+char *H2T_Get_filenameExt( char *filename ) {
+  const char pathsep='/';
+  char       *dot,*lastpath;
+
+  if ( !filename ) {
+    return NULL;
+  }
+
+  dot = strrchr(filename, '.');
+  lastpath = (pathsep == 0) ? NULL : strrchr (filename, pathsep);
+
+  if ( (!dot) || dot == filename || (lastpath>dot) || (!strcmp(dot,".o")) ) {
+    /* No extension */
+    return filename + strlen(filename);
+  }
+
+  return dot;
+}
+
+/**
+ * \param ptr pointer toward the file extension (dot included)
+ * \param fmt default file format.
+ *
+ * \return and index associated to the file format detected from the extension.
+ *
+ * Get the wanted file format from the mesh extension. If \a fmt is provided, it
+ * is used as default file format (\a ptr==NULL), otherwise, the default file
+ * format is the medit one.
+ *
+ */
+int H2T_Get_format( char *ptr, int fmt ) {
+  /* Default is the Medit file format or a format given as input */
+  int defFmt = fmt;
+
+  if ( !ptr ) return defFmt;
+
+  if ( !strncmp( ptr,".mesh",strlen(".mesh") ) ) {
+    return H2T_FMT_MeditASCII;
+  }
+  else if ( !strncmp ( ptr,".npy",strlen(".npy") ) ) {
+    return H2T_FMT_Numpy;
+  }
+
+  return defFmt;
+}
+
+/**
  * \param argc number of command line arguments.
  * \param argv command line arguments.
  * \return \ref H2T_SUCCESS if success.
@@ -327,8 +290,10 @@ int main(int argc,char *argv[]) {
   FILE*           inm;
   MMG5_pMesh      mmgMesh;
   MMG5_pSol       mmgSol;
-  char            chaine[128];
-  int             *hexa,nbhex,ier;
+  char            chaine[128],*ptr;
+  int             *hexa,nbhex,ier,fmtin;
+  clock_t         t_start, t_end, t_cur ;
+  float           tim;
 
   fprintf(stdout,"\n  -- H2T, Release %s (%s) \n",H2T_VER,H2T_REL);
   fprintf(stdout,"     %s\n",H2T_CPY);
@@ -338,6 +303,8 @@ int main(int argc,char *argv[]) {
   mmgMesh = NULL;
   mmgSol  = NULL;
   hexa    = NULL;
+
+  t_start = clock();
 
   MMG3D_Init_mesh(MMG5_ARG_start,
                   MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
@@ -352,42 +319,68 @@ int main(int argc,char *argv[]) {
   /* command line */
   if ( !H2T_parsar(argc,argv,mmgMesh,mmgSol) )  return H2T_STRONGFAILURE;
 
-  /* Input data and creation of the hexa array */
-  if( !(inm = fopen(mmgMesh->namein,"r")) ) {
-    fprintf(stderr,"  ** %s  NOT FOUND.\n",mmgMesh->namein);
-    return 0;
-  }
+  ptr   = H2T_Get_filenameExt(mmgMesh->namein);
+  fmtin = H2T_Get_format(ptr,MMG5_FMT_MeditASCII);
 
-  nbhex = 0;
-  strcpy(chaine,"D");
-  while(fscanf(inm,"%s",&chaine[0])!=EOF && strncmp(chaine,"End",strlen("End")) ) {
-    if(!strncmp(chaine,"Hexahedra",strlen("Hexahedra"))) {
-      fscanf(inm,"%d",&nbhex);
-      fprintf(stdout,"  READING %d HEXA\n",nbhex);
-      hexa = (int*) malloc(9*(nbhex+1)*sizeof(int));
-      assert(hexa);
+  switch ( fmtin ) {
+
+    case ( H2T_FMT_Numpy ):
+
+      nbhex = H2T_loadNpy(mmgMesh,&hexa,mmgMesh->namein);
       break;
-    }
-  }
-  fclose(inm);
 
-  nbhex = H2T_loadMesh(mmgMesh,hexa,nbhex,mmgMesh->namein);
+    case ( H2T_FMT_MeditASCII ):
+
+      nbhex = H2T_loadMesh(mmgMesh,&hexa,mmgMesh->namein);
+      break;
+
+    default:
+      fprintf(stderr,"  ** I/O AT FORMAT %s NOT IMPLEMENTED.\n",H2T_Get_formatName(fmtin) );
+      return H2T_STRONGFAILURE;
+  }
 
   if ( nbhex < 0 ) {
     return H2T_STRONGFAILURE;
   }
 
-  /** call hex2tet library */
-  ier = H2T_libhex2tet(mmgMesh,hexa,nbhex);
+  t_cur = clock();
+  tim = (float)(t_cur-t_start)/CLOCKS_PER_SEC;
 
+  if ( mmgMesh->info.imprim > 0 )
+    fprintf(stdout,"  -- INPUT DATA COMPLETED.     %fs\n",tim);
+
+  /** call hex2tet library */
+  ier = H2T_libhex2tet(mmgMesh,&hexa,nbhex);
+
+  t_end = clock();
+  tim = (float)(t_end-t_cur)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim >= 0 ) {
+    fprintf(stdout,"\n   LIBHEX2TET: ELAPSED TIME  %fs\n",tim);
+  }
+
+  t_cur = t_end;
   MMG3D_saveMesh(mmgMesh,mmgMesh->nameout);
 
-  /** free structures */
-  free(hexa);
+  t_end = clock();
+  tim = (float)(t_end-t_cur)/CLOCKS_PER_SEC;
 
-  MMG3D_Free_all(MMG5_ARG_start,
-                 MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
-                 MMG5_ARG_end);
+  if ( mmgMesh->info.imprim > 0 )
+    fprintf(stdout,"  -- WRITING COMPLETED.     %fs\n",tim);
+
+  t_end = clock();
+  tim = (float)(t_end-t_start)/CLOCKS_PER_SEC;
+
+  if ( mmgMesh->info.imprim >= 0 ) {
+    fprintf(stdout, "\n   END OF MODULE HEX2TET: TOTAL TIME  %fs\n", tim);
+  }
+
+  /** free structures */
+  H2T_Free_all(MMG5_ARG_start,
+               MMG5_ARG_ppMesh,&mmgMesh,MMG5_ARG_ppMet,&mmgSol,
+               H2T_ARG_phexa,&hexa,
+               MMG5_ARG_end);
+
 
   return ier;
 }

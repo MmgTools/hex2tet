@@ -249,8 +249,8 @@ int H2T_hashQuad(MMG5_pMesh mesh,MMG5_Hash *hash) {
  */
 int H2T_hashGetRef(MMG5_pMesh mesh,MMG5_Hash *hash) {
   MMG5_pTetra pt;
-  int         *adja;
-  int         ie,i,nt,ia,ib,ic,k,ref;
+  MMG5_int    *adja, ie;
+  int         i,nt,ia,ib,ic,k,ref;
 
   /* Create tetrahedra adjacency */
   if( !MMG3D_hashTetra(mesh,0) ) return 0;
@@ -492,7 +492,7 @@ int H2T_edgePut(pHedge hash,int a,int b,int np) {
     ha      = &hash->item[hash->hnxt];
     ++hash->hnxt;
     if ( hash->hnxt >= hash->nhmax ) {
-      fprintf(stdout,"  ## Memory alloc problem (edge): %d\n",hash->nhmax);
+      fprintf(stdout,"  ## Memory alloc problem (edge): %" MMG5_PRId "\n",hash->nhmax);
       return 0;
     }
   }

@@ -61,6 +61,23 @@
   void nl##__ pl                                  \
   { body }                                        \
 
+/** Safe allocation with calloc */
+#define H2T_SAFE_CALLOC(ptr,size,type,law) do      \
+  {                                                \
+    ptr = (type*)calloc(size,sizeof(type));        \
+    if ( !ptr ) {                                  \
+      perror("  ## Memory problem: calloc");       \
+      law;                                         \
+    }                                              \
+  }while(0)
+
+/** Safe deallocation */
+#define H2T_SAFE_FREE(ptr) do                   \
+  {                                             \
+    free(ptr);                                  \
+    ptr = NULL;                                 \
+  }while(0)
+
 
 /** \brief hidir[i]: vertices of the face i */
 static const unsigned char H2T_hidir[6][4] = { {0,3,2,1},{0,4,7,3},{0,1,5,4},{4,5,6,7},{1,2,6,5},{2,3,7,6} };
@@ -92,6 +109,18 @@ typedef struct {
 } Hedge;
 typedef Hedge * pHedge;
 
+/**
+ * \enum H2T_Format
+ * \brief Type of supported file format
+ */
+enum H2T_Format {
+  H2T_FMT_MeditASCII, /*!< ASCII Medit (.mesh) */
+  H2T_FMT_Numpy, /*!< Numpy array (.npy) */
+  H2T_FMT_Unknown /*!< Unrecognized */
+};
+
+int    H2T_Get_format( char *ptr, int fmt );
+
 int    H2T_chkorient(MMG5_pMesh ,int* ,int );
 double H2T_quickvol(double *,double *,double *,double *);
 double H2T_voltet(MMG5_pMesh ,int );
@@ -105,3 +134,4 @@ int    H2T_edgePoint(pHedge ,int ,int );
 int    H2T_cuthex(MMG5_pMesh ,pHedge ,int* ,MMG5_int* ,int ) ;
 
 int    _H2T_Init_mesh_var(va_list argptr);
+int    H2T_Free_all_var(va_list argptr);

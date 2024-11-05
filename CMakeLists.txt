@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5.0)
 
 PROJECT (hex2tet)
 
@@ -24,9 +24,9 @@ FILE ( MAKE_DIRECTORY  ${H2T_BUILD_DIR} )
 #####
 ###############################################################################
 SET (CMAKE_RELEASE_VERSION_MAJOR "1")
-SET (CMAKE_RELEASE_VERSION_MINOR "0")
-SET (CMAKE_RELEASE_VERSION_PATCH "0_a")
-SET (CMAKE_RELEASE_DATE "July 2, 2016")
+SET (CMAKE_RELEASE_VERSION_MINOR "1")
+SET (CMAKE_RELEASE_VERSION_PATCH "0")
+SET (CMAKE_RELEASE_DATE "Nov 5, 2024")
 
 SET (CMAKE_RELEASE_VERSION
   "${CMAKE_RELEASE_VERSION_MAJOR}.${CMAKE_RELEASE_VERSION_MINOR}.${CMAKE_RELEASE_VERSION_PATCH}")
@@ -105,18 +105,6 @@ ENDIF()
 
 ############################################################################
 #####
-#####         Fortran header: libmmgtypesf.h
-#####
-############################################################################
-ADD_EXECUTABLE(genheader ${PROJECT_SOURCE_DIR}/scripts/genheader.c)
-TARGET_LINK_LIBRARIES ( genheader ${LIBRARIES}  )
-GENERATE_FORTRAN_HEADER ( hex2tet
-  ${H2T_SOURCE_DIR} libhex2tet.h
-  ${H2T_BUILD_DIR} libhex2tetf.h
-  )
-
-############################################################################
-#####
 #####        MMG (for mesh data structure)
 #####
 ############################################################################
@@ -143,22 +131,46 @@ ENDIF ( )
 
 ############################################################################
 #####
+#####         Fortran header: libmmgtypesf.h
+#####
+############################################################################
+ADD_EXECUTABLE(genheader ${PROJECT_SOURCE_DIR}/scripts/genheader.c)
+TARGET_LINK_LIBRARIES ( genheader ${LIBRARIES}  )
+GENERATE_FORTRAN_HEADER ( hex2tet
+  ${H2T_SOURCE_DIR} libhex2tet.h ${MMG_INCLUDE_DIRS}/mmg/common/libmmgtypes.h
+  ${H2T_BUILD_DIR} libhex2tetf.h
+  )
+
+############################################################################
+#####
 #####         Scotch
 #####
 ############################################################################
-# add SCOTCH library?
+# Find SCOTCH library?
 SET(SCOTCH_DIR "" CACHE PATH "Installation directory for scotch")
 
-FIND_PACKAGE(SCOTCH)
+# add Scotch library?
+SET ( USE_SCOTCH "" CACHE STRING "Use SCOTCH tool for renumbering (ON, OFF or <empty>)" )
+SET_PROPERTY(CACHE USE_SCOTCH PROPERTY STRINGS "ON" "OFF" "")
 
-IF ( NOT SCOTCH_FOUND )
-  MESSAGE ( WARNING "Scotch library not found:"
-    "Using scotch reduce the execution time of mmg3d "
-    "(see https://gforge.inria.fr/frs/?group_id=248 to download it)."
-    "If you have already installed Scotch and want to use it, "
-    "please set the CMake variable or environment variable SCOTCH_DIR "
-    "to your scotch directory.")
-ENDIF ( )
+IF ( NOT DEFINED USE_SCOTCH OR USE_SCOTCH STREQUAL "" OR USE_SCOTCH MATCHES " +" )
+  # Variable is not provided by user
+  FIND_PACKAGE(SCOTCH QUIET)
+
+ELSE ()
+  IF ( USE_SCOTCH )
+    FIND_PACKAGE(SCOTCH)
+
+    IF ( NOT SCOTCH_FOUND )
+      MESSAGE ( WARNING "Scotch library not found:"
+        "Using scotch reduce the execution time of mmg3d "
+        "(see https://gforge.inria.fr/frs/?group_id=248 to download it)."
+        "If you have already installed Scotch and want to use it, "
+        "please set the CMake variable or environment variable SCOTCH_DIR "
+        "to your scotch directory.")
+    ENDIF ( )
+  ENDIF()
+ENDIF()
 
 If ( SCOTCH_FOUND )
   add_definitions(-DUSE_SCOTCH)
@@ -230,7 +242,7 @@ FILE(
   )
 IF (NOT WIN32)
   FIND_LIBRARY(M_LIB m)
-  SET( LIBRARIES ${LIBRARIES} ${M_LIB} )
+  SET( LIBRARIES ${LIBRARIES} ${M_LIB})
 ENDIF()
 
 ############################################################################

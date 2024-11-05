@@ -1,14 +1,63 @@
 name: hex2tet CI
 
 on: 
-  #run tests on push events
   push:
-  #run tests on PR events
   pull_request:
+  workflow_dispatch:
+
+env:
+  BISON_PATH: /usr/bin/bison
 
 jobs:
-  hex2tet:
-    runs-on: macos-13
+  building:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest,macos-latest]
+        int: [32, 64]
+        scotch: [off, on]
+      fail-fast: false
 
     steps:
-      - run: echo "test 1"
+      - name: Install bison
+        if: ${{ matrix.scotch == 'on' && matrix.os == 'macos-latest' }}
+        run: |
+          brew install bison
+          echo "BISON_FLG=\"-DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison\"" >> $GITHUB_ENV
+          echo "FORT_FLG=\"-DCMAKE_Fortran_COMPILER=gfortran-14\"" >> "$GITHUB_ENV"
+
+      - name: Install scotch
+        if: matrix.scotch == 'on'
+        run : |
+          git clone https://gitlab.inria.fr/scotch/scotch.git
+          cmake -Sscotch -Bbuild_scotch -DINTSIZE=${{ matrix.int }} \
+          ${{ env.FORT_FLG }} ${{ env.BISON_FLG }} \
+          -DCMAKE_INSTALL_PREFIX=install_scotch -DBUILD_PTSCOTCH=OFF
+          cmake --build build_scotch --target install
+
+      - name: Install mmg
+        run: |
+          git clone https://github.com/MmgTools/mmg.git
+          cmake -Smmg -Bbuild_mmg -DMMG5_INT=int${{ matrix.int }}_t \
+          -DBUILD_SHARED_LIBS=NO -DUSE_SCOTCH=${{ matrix.scotch }} \
+          -DSCOTCH_DIR=install_scotch
+          cmake --build build_mmg
+
+      # checkout the provided branch name if workflow is manually run
+      - uses: actions/checkout@v3
+        if: inputs.branch_name
+        with:
+          ref: ${{github.event.inputs.branch}}
+          path: hex2tet
+
+      - uses: actions/checkout@v3
+        if: inputs.branch_name == ''
+        with:
+          path: hex2tet
+
+      - name: Compile hex2tet
+        run: |
+          cmake -Shex2tet -Bbuild_h2t -DMMG_DIR=build_mmg -DUSE_SCOTCH=${{ matrix.scotch }} \
+          -DSCOTCH_DIR=install_scotch
+          cmake --build build_h2t

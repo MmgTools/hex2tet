@@ -42,7 +42,119 @@ extern "C" {
  *
  */
 #define H2T_STRONGFAILURE 2
-
+/**
+ * \def H2T_ARG_hexa
+ *
+ * Pointer towards hexahedra array.
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+/**
+ * \def MMG5_ARG_start
+ *
+ * To begin a list of variadic arguments (mandatory first arg for all our
+ * variadic functions)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_start  1
+/**
+ * \def H2T_ARG_ppMesh
+ *
+ * Pointer toward a MMG5_pMesh structure (for structure allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppMesh 2
+/**
+ * \def H2T_ARG_ppLs
+ *
+ * Pointer toward a MMG5_pSol structure storing a level-set (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppLs   3
+/**
+ * \def H2T_ARG_ppMet
+ *
+ * Pointer toward a MMG5_pSol structure storing a metric (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppMet  4
+/**
+ * \def H2T_ARG_ppDisp
+ *
+ * Pointer toward a MMG5_pSol structure storing a displacement (for structure
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppDisp 5
+/**
+ * \def H2T_ARG_ppSols
+ *
+ * Pointer toward an array of MMG5_Sol structures storing a list of solutions
+ * allocations purposes)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_ppSols  6
+/**
+ * \def H2T_ARG_pMesh
+ *
+ * MMG5_pMesh structure
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pMesh  7
+/**
+ * \def H2T_ARG_pMet
+ *
+ * MMG5_pSol structure storing a metric field
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pMet   8
+/**
+ * \def H2T_ARG_pDisp
+ *
+ * MMG5_pSol structure storing a displacement field
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_pDisp  9
+/**
+ * \def H2T_ARG_end
+ *
+ * To end a list of variadic argument (mandatory last argument for all our
+ * variadic functions)
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_end    10
+/**
+ * \def H2T_ARG_phexa
+ *
+ * integer array storing list of hexahedra
+ *
+ * \remark we cannot use an enum because used in
+ * variadic functions).
+ */
+#define H2T_ARG_phexa  (MMG5_ARG_end+1)
 /**
  * \param mmgMesh mesh structure with only vertices.
  * \param hexa tab of hexahedra (size 9*(nbhexa+1) : 8 vertices per hexa + one ref).
@@ -55,16 +167,58 @@ extern "C" {
  * main library function: cut hexa into tetra.
  *
  * \remark Fortran interface:
- * >   SUBROUTINE H2T_LIBHEX2TET(mmgMesh,hexa,nbHexa,retval)\n
+ * >   SUBROUTINE H2T_LIBHEX2TET(mmgMesh,hexa,nbHexa,filename,strlen0,retval)\n
  * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
- * >     INTEGER, DIMENSION(*), INTENT(IN) :: hexa\n
+ * >     MMG5_DATA_PTR_T                   :: hexa\n
  * >     INTEGER, INTENT(IN)               :: nbHexa\n
+ * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
+ * >     INTEGER, INTENT(IN)               :: strlen0\n
  * >     INTEGER, INTENT(OUT)              :: retval\n
  * >   END SUBROUTINE\n
  *
  */
-int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
+int H2T_libhex2tet(MMG5_pMesh mmgMesh,int** hexa,MMG5_int nbhexa);
 
+/**
+ * \param mmgMesh pointer toward the mesh.
+ * \param tabhex array of hexa.
+ * \param filname name of input file.
+ *
+ * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
+ * fail, 1 otherwise.
+ *
+ * Read mesh data.
+ *
+ * * \remark Fortran interface:
+ * >   SUBROUTINE H2T_LOADMESH(mmgMesh,tabhex,retval)\n
+ * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
+ * >     MMG5_DATA_PTR_T                   :: tabhex\n
+ * >     INTEGER, INTENT(OUT)              :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+int H2T_loadMesh(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
+
+/**
+ * \param mmgMesh pointer toward the mesh.
+ * \param tabhex pointer towards array of hexa.
+ * \param filename name of input file.
+ *
+ * \return  0 if the file is not found, -1 if we detect mismatch parameters or we
+ * fail. If successful, number of read hexahedra.
+ *
+ * Read mesh data from .npy file
+ *
+ * * \remark Fortran interface:
+ * >   SUBROUTINE H2T_LOADNPY(mmgMesh,tabhex,filename,retval)\n
+ * >     MMG5_DATA_PTR_T,INTENT(INOUT)     :: mmgMesh\n
+ * >     MMG5_DATA_PTR_T                   :: tabhex\n
+ * >     CHARACTER(LEN=*), INTENT(IN)      :: filename\n
+ * >     INTEGER, INTENT(OUT)              :: retval\n
+ * >   END SUBROUTINE\n
+ *
+ */
+int H2T_loadNpy(MMG5_pMesh mmgMesh,int** tabhex,char *filename);
 
 /**
  * \param starter dummy argument used to initialize the variadic argument
@@ -177,8 +331,7 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  * and reference \a ref at position \a pos in hexahedra table.
  *
  * \remark Fortran interface:
- * >   SUBROUTINE H2T_SET_HEXAHEDRON(hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,&
- * >                                 retval)\n
+ * >   SUBROUTINE H2T_SET_HEXAHEDRON(hexTab,i0,i1,i2,i3,i4,i5,i6,i7,ref,pos,retval)\n
  * >     INTEGER, DIMENSION(:), INTENT(INOUT) :: hexTab\n
  * >     INTEGER, INTENT(IN)                  :: i0,i1,i2,i3,i4,i5,i6,i7\n
  * >     INTEGER, INTENT(IN)                  :: ref,pos\n
@@ -213,6 +366,25 @@ int H2T_libhex2tet(MMG5_pMesh mmgMesh,int* hexa,MMG5_int nbhexa );
  */
   int  H2T_Set_quadrilateral(MMG5_pMesh mesh,int i0,int i1,int i2,int i3,int ref,
                              int pos);
+
+/**
+ * \param starter dummy argument used to initialize the variadic argument
+ * list.
+ * \param ... variadic arguments that depend to the library function that you
+ * have call.
+ *
+ * \return 1 if success, 0 if fail
+ *
+ * Deallocations before return.
+ *
+ * \remark we pass the structures by reference in order to have argument
+ * compatibility between the library call from a Fortran code and a C code.
+ *
+ * \remark no Fortran interface to allow variadic args.
+ *
+ */
+int H2T_Free_all(const int starter,...);
+
 
 #ifdef __cplusplus
 }
