@@ -20,9 +20,11 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Export gfotran compiler
+      - name: Install bison
         if: ${{ matrix.scotch == 'on' && matrix.os == 'macos-latest' }}
         run: |
+          brew install bison
+          echo "BISON_FLG=\"-DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison\"" >> $GITHUB_ENV
           echo "FORT_FLG=\"-DCMAKE_Fortran_COMPILER=gfortran-14\"" >> "$GITHUB_ENV"
 
       - name: Install scotch
@@ -30,9 +32,8 @@ jobs:
         run : |
           git clone https://gitlab.inria.fr/scotch/scotch.git
           cmake -Sscotch -Bbuild_scotch -DINTSIZE=${{ matrix.int }} \
-          ${{ env.FORT_FLG }} \
-          -DCMAKE_INSTALL_PREFIX=install_scotch -DBUILD_PTSCOTCH=OFF \
-          -DBISON_EXECUTABLE=$BISON_PATH
+          ${{ env.FORT_FLG }} ${{ env.BISON_FLG }} \
+          -DCMAKE_INSTALL_PREFIX=install_scotch -DBUILD_PTSCOTCH=OFF
           cmake --build build_scotch --target install
 
       - name: Install mmg
